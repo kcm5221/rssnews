@@ -20,7 +20,7 @@ def _clean(txt: str) -> str:
 def _parse(s: str) -> dt.datetime:
     return dt.datetime.strptime(s, "%a, %d %b %Y %H:%M:%S %z")
 
-def fetch_naver_articles(query: str, topic: str, days: int = 7, max_pages: int = 10) -> list[dict]:
+def fetch_naver_articles(query: str, topic: str, days: int = 1, max_pages: int = 10) -> list[dict]:
     now = dt.datetime.now()
     cutoff = now - dt.timedelta(days=days)
     articles: list[dict] = []
