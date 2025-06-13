@@ -1,0 +1,10 @@
+# ⬇ 라이선스 column은 나중에 Description 자동 삽입 때 사용
+- name: 정책브리핑-보도자료
+  url: https://www.korea.kr/rss/policy.xml
+  license: CC BY 4.0
+- name: VOA Science & Tech
+  url: https://feeds.voanews.com/voaenglishscience
+  license: CC BY 2.0
+- name: Euronews Next
+  url: https://www.euronews.com/feeds/tag/euronews-next
+  license: CC BY 4.0
