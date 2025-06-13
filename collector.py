@@ -8,6 +8,7 @@ import yaml
 from naver_news_client import fetch_naver_articles
 
 _LOG = logging.getLogger(__name__)
+_ALLOWED_TOPICS = {"IT", "게임", "AI"}
 
 _SRC_PATH = Path("rss_sources.yaml")
 
@@ -56,4 +57,6 @@ def collect_all() -> list[dict]:
             collected += _fetch_rss(src["url"], src.get("topic", ""))
         elif src.get("type") == "naver":
             collected += fetch_naver_articles(src["query"], src.get("topic", ""))
-    return collected
+    filtered = [a for a in collected if a.get("topic") in _ALLOWED_TOPICS]
+    _LOG.info("허용된 토픽 %s 기사 %d건", list(_ALLOWED_TOPICS), len(filtered))
+    return filtered

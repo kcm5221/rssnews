@@ -12,6 +12,7 @@ RAW_DIR = Path("raw_feeds")
 RAW_DIR.mkdir(exist_ok=True)
 
 def run():
+    _LOG.info("파이프라인 시작")
     # ① 수집
     arts = collect_all()
 
