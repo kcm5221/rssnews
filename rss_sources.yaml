@@ -1,10 +1,20 @@
 # ⬇ 라이선스 column은 나중에 Description 자동 삽입 때 사용
-- name: 정책브리핑-보도자료
-  url: https://www.korea.kr/rss/policy.xml
+- type: rss
+  name: TechCrunch
+  url: https://techcrunch.com/feed/
+  topic: IT
   license: CC BY 4.0
-- name: VOA Science & Tech
-  url: https://feeds.voanews.com/voaenglishscience
-  license: CC BY 2.0
-- name: Euronews Next
-  url: https://www.euronews.com/feeds/tag/euronews-next
+- type: rss
+  name: GameSpot News
+  url: https://www.gamespot.com/feeds/news/
+  topic: 게임
   license: CC BY 4.0
+- type: rss
+  name: VentureBeat AI
+  url: https://venturebeat.com/category/ai/feed/
+  topic: AI
+  license: CC BY 4.0
+- type: naver
+  name: 네이버 IT/보안 키워드
+  query: AI 칩셋 보안
+  topic: IT

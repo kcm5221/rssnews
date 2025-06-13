@@ -4,31 +4,23 @@
 from __future__ import annotations
 import feedparser, logging, datetime as dt
 from pathlib import Path
+import yaml
 from naver_news_client import fetch_naver_articles
 
 _LOG = logging.getLogger(__name__)
+_ALLOWED_TOPICS = {"IT", "게임", "AI"}
 
-# ✔ 필요한 RSS·검색 소스 정의 -----------------------------------------------
-SOURCES = [
-    # 정책브리핑
-    {
-        "type": "rss",
-        "url":  "https://www.korea.kr/rss/policy.xml",
-        "topic": "정책",
-    },
-    # VOA Science & Tech
-    {
-        "type": "rss",
-        "url":  "https://www.voakorea.com/api/zgyqeqe%24qm",
-        "topic": "국제과학",
-    },
-    # 네이버 IT/보안 키워드
-    {
-        "type":  "naver",
-        "query": "AI 칩셋 보안",
-        "topic": "IT",
-    },
-]
+_SRC_PATH = Path("rss_sources.yaml")
+
+
+def _load_sources() -> list[dict]:
+    """YAML 파일에서 수집 소스 목록을 로드합니다."""
+    if not _SRC_PATH.exists():
+        _LOG.warning("소스 파일 %s이 존재하지 않습니다", _SRC_PATH)
+        return []
+    with _SRC_PATH.open(encoding="utf-8") as f:
+        data = yaml.safe_load(f) or []
+    return data
 
 # ✔ RSS ----------------------------------------------------------------------
 def _fetch_rss(url: str, topic: str, days: int = 7) -> list[dict]:
@@ -57,10 +49,14 @@ def _fetch_rss(url: str, topic: str, days: int = 7) -> list[dict]:
 
 # -----------------------------------------------------------------------------
 def collect_all() -> list[dict]:
+    """모든 소스에서 기사를 수집합니다."""
+    sources = _load_sources()
     collected: list[dict] = []
-    for src in SOURCES:
-        if src["type"] == "rss":
-            collected += _fetch_rss(src["url"], src["topic"])
-        elif src["type"] == "naver":
-            collected += fetch_naver_articles(src["query"], src["topic"])
-    return collected
+    for src in sources:
+        if src.get("type") == "rss":
+            collected += _fetch_rss(src["url"], src.get("topic", ""))
+        elif src.get("type") == "naver":
+            collected += fetch_naver_articles(src["query"], src.get("topic", ""))
+    filtered = [a for a in collected if a.get("topic") in _ALLOWED_TOPICS]
+    _LOG.info("허용된 토픽 %s 기사 %d건", list(_ALLOWED_TOPICS), len(filtered))
+    return filtered
