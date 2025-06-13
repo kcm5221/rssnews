@@ -6,3 +6,4 @@ tqdm==4.66.4
 # 선택: 로컬 LLM
 transformers==4.41.1
 torch==2.3.0
+pyyaml==6.0
