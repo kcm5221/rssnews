@@ -2,9 +2,9 @@
 
 > **최근 변경 사항**
 >
-> * 광고 제거 및 공백(normalization) 기능 추가 → 더 깨끗한 원문 확보
-> * 모든 *collector* 가 최근 24시간 기사만 수집하도록 제한 (Naver 클라이언트 포함)
-> * 요약 전 텍스트 정제 후 `pub_date` 기준으로 정렬
+> * RSS 소스를 `rss_sources.yaml` 로 관리
+> * 모든 수집 결과를 `raw_feeds/` 폴더에 JSON 형식으로 저장
+> * 네이버 검색 API 연동 및 광고 제거 기능 강화
 >
 > ⚠️ `feedparser` 가 설치되지 않으면 `main.py` 가 동작하지 않습니다.
 
@@ -26,11 +26,15 @@
 
 ```
 📦 project_root
- ┣ 📂collectors        # 사이트별 RSS/HTML 크롤러
- ┣ 📂processors        # 정제·요약 로직
- ┣ 📂utils             # 공통 유틸리티 함수
- ┣ main.py             # 전체 파이프라인 엔트리 포인트
- ┣ requirements.txt    # 필요 패키지 목록
+ ┣ article_extractor.py   # 본문 추출 및 간단 요약
+ ┣ collector.py           # RSS/네이버 기사 수집
+ ┣ naver_news_client.py   # 네이버 검색 API 연동
+ ┣ pipeline.py            # 수집 → 정제 → 저장 파이프라인
+ ┣ utils.py               # 공통 유틸리티 함수
+ ┣ rss_sources.yaml       # 수집 대상 목록
+ ┣ raw_feeds/             # 결과 JSON 저장 폴더
+ ┣ main.py                # 엔트리 포인트
+ ┣ requirements.txt       # 필요 패키지 목록
  ┗ README.md
 ```
 
@@ -70,20 +74,12 @@ $ pip install -r requirements.txt
 # 기본 파이프라인 실행
 $ python main.py
 
-# 결과 예시
-results/
- ┣ 2025-06-13_summary.json
- ┗ 2025-06-13_summary.md
+# 결과 파일 예시
+raw_feeds/
+ ┗ articles_20250613_131459.json
 ```
 
-### 커스텀 옵션
 
-| 옵션             | 설명           | 예시         |
-| -------------- | ------------ | ---------- |
-| `--hours 48`   | 수집 범위(시간) 지정 | 최근 48시간 기사 |
-| `--format csv` | 출력 포맷 선택     | CSV 파일 생성  |
-
----
 
 ## 테스트
 
@@ -99,7 +95,7 @@ $ python -m py_compile $(git ls-files '*.py')
 ## 배포
 
 1. `git tag vX.Y.Z` 로 버전 태그 추가
-2. GitHub Release 생성 후 결과물 업로드 (예: `results/*.md`)
+2. GitHub Release 생성 후 결과물 업로드 (예: `raw_feeds/*.json`)
 
 ---
 
@@ -108,14 +104,14 @@ $ python -m py_compile $(git ls-files '*.py')
 | 증상                                | 원인          | 해결 방법                                          |
 | --------------------------------- | ----------- | ---------------------------------------------- |
 | `ModuleNotFoundError: feedparser` | 의존 패키지 누락   | `pip install feedparser`                       |
-| 기사 본문이 비정상적으로 길거나 HTML 태그 포함      | 광고 제거 로직 실패 | `processors/cleaner.py` 의 `remove_ads()` 규칙 추가 |
+| 기사 본문이 비정상적으로 길거나 HTML 태그 포함      | 광고 제거 로직 실패 | `article_extractor.py` 의 `clean_text()` 규칙 수정 |
 
 ---
 
 ## 기여 방법
 
 1. Issue 또는 Pull Request 생성 전 `CONTRIBUTING.md` 확인
-2. 새로운 Collector 추가 시 `collectors/base.py` 상속
+2. 수집 소스 확장 시 `collector.py` 수정
 3. 코딩 컨벤션: **PEP 8 + Black**
 
 ---
