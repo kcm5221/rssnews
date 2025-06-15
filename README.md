@@ -26,13 +26,20 @@
 
 ```
 📦 project_root
- ┣ article_extractor.py   # 본문 추출 및 간단 요약
- ┣ collector.py           # RSS/네이버 기사 수집
- ┣ naver_news_client.py   # 네이버 검색 API 연동
- ┣ pipeline.py            # 파이프라인 함수 모음
- ┣ utils.py               # 공통 유틸리티 함수
- ┣ rss_sources.yaml       # 수집 대상 목록
+ ┣ utubenews/
+ ┃ ┣ __init__.py
+ ┃ ┣ article_extractor.py
+ ┃ ┣ collector.py
+ ┃ ┣ naver_client.py
+ ┃ ┣ naver_news_client.py
+ ┃ ┣ pipeline.py
+ ┃ ┣ summarizer.py
+ ┃ ┣ text_utils.py
+ ┃ ┗ utils.py
  ┣ raw_feeds/             # 결과 JSON 저장 폴더
+ ┣ static/               # 클라이언트용 스크립트
+ ┃ ┗ error_logger.js
+ ┣ rss_sources.yaml       # 수집 대상 목록
  ┣ main.py                # 엔트리 포인트
  ┣ requirements.txt       # 필요 패키지 목록
  ┗ README.md
@@ -86,10 +93,10 @@ raw_feeds/
 ### 브라우저 스크립트 오류 확인
 
 웹 페이지에서 파이프라인 결과를 활용하는 경우 자바스크립트 오류나 경고를
-쉽게 확인하려면 `error_logger.js` 파일을 HTML에 포함합니다.
+쉽게 확인하려면 `static/error_logger.js` 파일을 HTML에 포함합니다.
 
 ```html
-<script src="error_logger.js"></script>
+<script src="static/error_logger.js"></script>
 ```
 
 이 스크립트는 전역 `error` 와 `unhandledrejection` 이벤트를 가로채 콘솔에
@@ -102,6 +109,9 @@ raw_feeds/
 ```bash
 # 문법 검사 (컴파일 에러 여부 확인)
 $ python -m py_compile $(git ls-files '*.py')
+
+# 간단한 동작 테스트 실행
+$ python -m unittest discover -s tests -v
 ```
 
 > ✅ 위 명령은 모든 `.py` 파일이 정상 컴파일되는지 확인합니다.
@@ -120,14 +130,14 @@ $ python -m py_compile $(git ls-files '*.py')
 | 증상                                | 원인          | 해결 방법                                          |
 | --------------------------------- | ----------- | ---------------------------------------------- |
 | `ModuleNotFoundError: feedparser` | 의존 패키지 누락   | `pip install feedparser`                       |
-| 기사 본문이 비정상적으로 길거나 HTML 태그 포함      | 광고 제거 로직 실패 | `article_extractor.py` 의 `clean_text()` 규칙 수정 |
+| 기사 본문이 비정상적으로 길거나 HTML 태그 포함      | 광고 제거 로직 실패 | `utubenews/article_extractor.py` 의 `clean_text()` 규칙 수정 |
 
 ---
 
 ## 기여 방법
 
 1. Issue 또는 Pull Request 생성 전 `CONTRIBUTING.md` 확인
-2. 수집 소스 확장 시 `collector.py` 수정
+2. 수집 소스 확장 시 `utubenews/collector.py` 수정
 3. 코딩 컨벤션: **PEP 8 + Black**
 
 ---
