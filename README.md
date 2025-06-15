@@ -83,6 +83,18 @@ raw_feeds/
 `sort_articles()`, `save_articles()` 함수로 나뉘어 있어 원하는 단계만 독립적으로
 호출할 수 있습니다.
 
+### 브라우저 스크립트 오류 확인
+
+웹 페이지에서 파이프라인 결과를 활용하는 경우 자바스크립트 오류나 경고를
+쉽게 확인하려면 `error_logger.js` 파일을 HTML에 포함합니다.
+
+```html
+<script src="error_logger.js"></script>
+```
+
+이 스크립트는 전역 `error` 와 `unhandledrejection` 이벤트를 가로채 콘솔에
+로그를 남겨 디버깅을 도와줍니다.
+
 
 
 ## 테스트
