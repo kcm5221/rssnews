@@ -33,4 +33,3 @@ def build_script(title: str, body: str, source: str, license: str) -> str:
         \ucd9c\ucc98: {source} / \ub77c\uc774\uc13c\uc2a4: {license}
         """
     ).strip()
-

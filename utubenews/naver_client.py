@@ -17,7 +17,6 @@ HEADERS = {
 
 log = logging.getLogger(__name__)
 TODAY = datetime.date.today()
-
 def search_today(query: str, max_pages: int = 10, page_size: int = 100) -> list[dict]:
     """Return articles from the past two days for ``query``."""
 
