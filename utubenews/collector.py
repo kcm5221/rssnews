@@ -5,8 +5,8 @@ from __future__ import annotations
 import feedparser, logging, datetime as dt
 from pathlib import Path
 import yaml
-from naver_news_client import fetch_naver_articles
-from text_utils import clean_html_text
+from .naver_news_client import fetch_naver_articles
+from .text_utils import clean_html_text
 
 _LOG = logging.getLogger(__name__)
 _ALLOWED_TOPICS = {"IT", "게임", "AI"}

@@ -1,5 +1,5 @@
-from pipeline import run
-from utils import setup_logging
+from utubenews.pipeline import run
+from utubenews.utils import setup_logging
 
 if __name__ == "__main__":
     setup_logging()
