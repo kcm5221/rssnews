@@ -2,16 +2,14 @@
 다양한 소스에서 기사 메타데이터를 모아 리스트로 반환
 """
 from __future__ import annotations
-import feedparser, logging, datetime as dt, re, bs4
+import feedparser, logging, datetime as dt
 from pathlib import Path
 import yaml
 from naver_news_client import fetch_naver_articles
+from text_utils import clean_html_text
 
 _LOG = logging.getLogger(__name__)
 _ALLOWED_TOPICS = {"IT", "게임", "AI"}
-
-_AD_PAT = re.compile(r"(?i)advert|sponsor|subscribe|광고|후원")
-_RE_WS = re.compile(r"\s+")
 
 _SRC_PATH = Path("rss_sources.yaml")
 
@@ -26,16 +24,6 @@ def _load_sources() -> list[dict]:
     return data
 
 
-def _clean_html_text(html: str) -> str:
-    """Remove ad-like lines and normalize whitespace from HTML."""
-    soup = bs4.BeautifulSoup(html or "", "html.parser")
-    parts: list[str] = []
-    for line in soup.get_text("\n").splitlines():
-        line = line.strip()
-        if not line or _AD_PAT.search(line):
-            continue
-        parts.append(line)
-    return _RE_WS.sub(" ", " ".join(parts)).strip()
 
 # ✔ RSS ----------------------------------------------------------------------
 def _fetch_rss(url: str, topic: str, days: int = 1) -> list[dict]:
@@ -56,7 +44,7 @@ def _fetch_rss(url: str, topic: str, days: int = 1) -> list[dict]:
             {
                 "title":       entry.get("title", "").strip(),
                 "link":        entry.get("link", ""),
-                "summary":     _clean_html_text(raw_sum),
+                "summary":     clean_html_text(raw_sum),
                 "topic":       topic,
                 "pubDateISO":  pub_dt.isoformat(),
             }

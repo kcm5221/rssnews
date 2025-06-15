@@ -29,7 +29,7 @@
  ┣ article_extractor.py   # 본문 추출 및 간단 요약
  ┣ collector.py           # RSS/네이버 기사 수집
  ┣ naver_news_client.py   # 네이버 검색 API 연동
- ┣ pipeline.py            # 수집 → 정제 → 저장 파이프라인
+ ┣ pipeline.py            # 파이프라인 함수 모음
  ┣ utils.py               # 공통 유틸리티 함수
  ┣ rss_sources.yaml       # 수집 대상 목록
  ┣ raw_feeds/             # 결과 JSON 저장 폴더
@@ -78,6 +78,10 @@ $ python main.py
 raw_feeds/
  ┗ articles_20250613_131459.json
 ```
+
+`pipeline.py`의 각 단계는 `collect_articles()`, `enrich_articles()`,
+`sort_articles()`, `save_articles()` 함수로 나뉘어 있어 원하는 단계만 독립적으로
+호출할 수 있습니다.
 
 
 

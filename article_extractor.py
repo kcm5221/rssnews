@@ -3,29 +3,13 @@
 """
 from __future__ import annotations
 import re, requests, bs4
+from text_utils import clean_html_text, clean_text
 
-_RE_WS = re.compile(r"\s+")
-_AD_PAT = re.compile(r"(?i)advert|sponsor|subscribe|광고|후원")
-
-def clean_text(text: str) -> str:
-    """Normalize whitespace and drop ad-like lines."""
-    lines = []
-    for line in text.splitlines():
-        line = line.strip()
-        if not line or _AD_PAT.search(line):
-            continue
-        lines.append(line)
-    return _RE_WS.sub(" ", " ".join(lines)).strip()
-
-def extract_main_text(url: str, min_len: int = 300) -> str:
-    """BeautifulSoup 이용, <p> 태그 모아 대략적인 본문만 반환"""
+def extract_main_text(url: str, min_len: int = 30) -> str:
+    """Return cleaned main body text from the article page."""
     try:
         html = requests.get(url, timeout=10).text
-        soup = bs4.BeautifulSoup(html, "html.parser")
-        paragraphs = [p.get_text(" ", strip=True) for p in soup.find_all("p")]
-        clean_paragraphs = [p for p in paragraphs if len(p) > 30]
-        text = "\n".join(clean_paragraphs)
-        return clean_text(text)
+        return clean_html_text(html, min_len=min_len)
     except Exception:
         return ""
 
