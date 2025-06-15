@@ -1,23 +1,35 @@
-import textwrap, re
+"""Utilities for building a short script from an article."""
 
-BULLET = "•"
+from __future__ import annotations
 
-def simple_summary(text: str, max_sent=3) -> str:
-    # 가장 긴 문장 n개 뽑기 (매우 단순)
-    sents = re.split(r"(?<=[.!?]) +", text)
-    sents = sorted(sents, key=lambda s: len(s), reverse=True)[:max_sent]
-    return " ".join(sents)
+import re
+import textwrap
 
-def build_script(title, body, source, license):
+BULLET = "\u2022"
+
+
+def simple_summary(text: str, max_sent: int = 3) -> str:
+    """Return the ``max_sent`` longest sentences from ``text``."""
+
+    sentences = re.split(r"(?<=[.!?]) +", text)
+    sentences = sorted(sentences, key=len, reverse=True)[:max_sent]
+    return " ".join(sentences)
+
+
+def build_script(title: str, body: str, source: str, license: str) -> str:
+    """Return a short markdown script summarizing the article."""
+
     summary = simple_summary(body)
-    return textwrap.dedent(f"""
-    ▶ 오늘의 기사: {title}
+    return textwrap.dedent(
+        f"""
+        \u25B6 \uc624\ub298\uc758 \uae00\uc0c1: {title}
 
-    {BULLET} 요약
-    {summary}
+        {BULLET} \uc694\uc57d
+        {summary}
 
-    {BULLET} 해설
-    - (여기에 당신의 의견/배경 설명 추가)
+        {BULLET} \ud574\uc124
+        - (\uc5ec\uae30\uc5d0 \ub2f9\uc2e0\uc758 \uc758\uacac/\ubc30\uacbd \uc124\uba85 \ucd94\uac00)
 
-    출처: {source} / 라이선스: {license}
-    """).strip()
+        \ucd9c\ucc98: {source} / \ub77c\uc774\uc13c\uc2a4: {license}
+        """
+    ).strip()

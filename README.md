@@ -109,6 +109,9 @@ raw_feeds/
 ```bash
 # 문법 검사 (컴파일 에러 여부 확인)
 $ python -m py_compile $(git ls-files '*.py')
+
+# 간단한 동작 테스트 실행
+$ python -m unittest discover -s tests -v
 ```
 
 > ✅ 위 명령은 모든 `.py` 파일이 정상 컴파일되는지 확인합니다.

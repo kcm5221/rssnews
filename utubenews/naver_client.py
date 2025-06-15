@@ -1,5 +1,12 @@
 # naver_client.py
-import os, requests, datetime, logging
+"""Simplified wrapper around the Naver Search API."""
+
+from __future__ import annotations
+
+import datetime
+import logging
+import os
+import requests
 
 NAVER_URL = "https://openapi.naver.com/v1/search/news.json"
 HEADERS = {
@@ -10,12 +17,10 @@ HEADERS = {
 
 log = logging.getLogger(__name__)
 TODAY = datetime.date.today()
+def search_today(query: str, max_pages: int = 10, page_size: int = 100) -> list[dict]:
+    """Return articles from the past two days for ``query``."""
 
-def search_today(query: str, max_pages: int = 10, page_size: int = 100):
-    """
-    네이버 뉴스 API에서 '어제~오늘' 기사만 반환.
-    """
-    results = []
+    results: list[dict] = []
     for page in range(max_pages):
         start = page * page_size + 1          # 1-based
         params = {
