@@ -29,7 +29,7 @@
  ┣ article_extractor.py   # 본문 추출 및 간단 요약
  ┣ collector.py           # RSS/네이버 기사 수집
  ┣ naver_news_client.py   # 네이버 검색 API 연동
- ┣ pipeline.py            # 수집 → 정제 → 저장 파이프라인
+ ┣ pipeline.py            # 파이프라인 함수 모음
  ┣ utils.py               # 공통 유틸리티 함수
  ┣ rss_sources.yaml       # 수집 대상 목록
  ┣ raw_feeds/             # 결과 JSON 저장 폴더
@@ -78,6 +78,22 @@ $ python main.py
 raw_feeds/
  ┗ articles_20250613_131459.json
 ```
+
+`pipeline.py`의 각 단계는 `collect_articles()`, `enrich_articles()`,
+`sort_articles()`, `save_articles()` 함수로 나뉘어 있어 원하는 단계만 독립적으로
+호출할 수 있습니다.
+
+### 브라우저 스크립트 오류 확인
+
+웹 페이지에서 파이프라인 결과를 활용하는 경우 자바스크립트 오류나 경고를
+쉽게 확인하려면 `error_logger.js` 파일을 HTML에 포함합니다.
+
+```html
+<script src="error_logger.js"></script>
+```
+
+이 스크립트는 전역 `error` 와 `unhandledrejection` 이벤트를 가로채 콘솔에
+로그를 남겨 디버깅을 도와줍니다.
 
 
 
