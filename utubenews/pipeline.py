@@ -4,9 +4,9 @@
 from __future__ import annotations
 import json, logging, datetime as dt
 from pathlib import Path
-from collector import collect_all
-from article_extractor import extract_main_text, quick_summarize
-from text_utils import clean_text
+from .collector import collect_all
+from .article_extractor import extract_main_text, quick_summarize
+from .text_utils import clean_text
 
 _LOG = logging.getLogger(__name__)
 RAW_DIR = Path("raw_feeds")

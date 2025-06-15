@@ -3,7 +3,7 @@
 """
 from __future__ import annotations
 import re, requests, bs4
-from text_utils import clean_html_text, clean_text
+from .text_utils import clean_html_text, clean_text
 
 def extract_main_text(url: str, min_len: int = 30) -> str:
     """Return cleaned main body text from the article page."""
