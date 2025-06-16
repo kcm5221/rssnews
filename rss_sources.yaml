@@ -18,3 +18,23 @@
   name: 네이버 IT/보안 키워드
   query: AI 칩셋 보안
   topic: IT
+
+# Additional sources for wider coverage
+- type: rss
+  name: The Hacker News
+  url: https://feeds.feedburner.com/TheHackersNews
+  topic: 보안
+  license: CC BY 4.0
+- type: rss
+  name: Stack Overflow Blog
+  url: https://stackoverflow.blog/feed/
+  topic: 프로그래밍
+  license: CC BY 4.0
+- type: naver
+  name: 네이버 보안 키워드
+  query: 보안
+  topic: 보안
+- type: naver
+  name: 네이버 프로그래밍 키워드
+  query: 프로그래밍
+  topic: 프로그래밍
