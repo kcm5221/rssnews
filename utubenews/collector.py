@@ -9,7 +9,7 @@ from .naver_news_client import fetch_naver_articles
 from .text_utils import clean_html_text
 
 _LOG = logging.getLogger(__name__)
-_ALLOWED_TOPICS = {"IT", "게임", "AI"}
+_ALLOWED_TOPICS = {"IT", "게임", "AI", "보안", "프로그래밍"}
 
 _SRC_PATH = Path("rss_sources.yaml")
 
