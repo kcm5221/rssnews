@@ -48,7 +48,7 @@ def fetch_naver_articles(
         for a in r.json().get("items", []):
             pub = _parse(a["pubDate"]).replace(tzinfo=None)
             if pub < cutoff:
-                _LOG.info("� 7일 이전 기사 도달, 조기 종료")
+                _LOG.info("⚠ %d일 이전 기사 도달, 조기 종료", days)
                 return articles
             articles.append(
                 {
