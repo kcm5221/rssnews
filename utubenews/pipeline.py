@@ -7,6 +7,7 @@ from pathlib import Path
 from .collector import collect_all
 from .article_extractor import extract_main_text, quick_summarize
 from .text_utils import clean_text
+from .utils import deduplicate
 
 _LOG = logging.getLogger(__name__)
 RAW_DIR = Path("raw_feeds")
@@ -46,6 +47,7 @@ def run(days: int = 1) -> Path:
     """Run the full pipeline and return the output path."""
     _LOG.info("파이프라인 시작")
     arts = collect_articles(days=days)
+    arts = deduplicate(arts)
     arts = enrich_articles(arts)
     arts = sort_articles(arts)
     return save_articles(arts)

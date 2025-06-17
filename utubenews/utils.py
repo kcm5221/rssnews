@@ -72,3 +72,28 @@ def filter_keywords(
         result.append(art)
 
     return result
+
+
+def deduplicate(articles: list[dict]) -> list[dict]:
+    """Return new list with duplicate entries removed.
+
+    Articles with the same ``link`` or the same ``title`` are considered
+    duplicates. The first occurrence is kept while later ones are dropped.
+    """
+
+    seen_links: set[str] = set()
+    seen_titles: set[str] = set()
+    unique: list[dict] = []
+
+    for art in articles:
+        link = art.get("link") or ""
+        title = art.get("title") or ""
+
+        if link in seen_links or title in seen_titles:
+            continue
+
+        seen_links.add(link)
+        seen_titles.add(title)
+        unique.append(art)
+
+    return unique

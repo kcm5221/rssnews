@@ -5,6 +5,7 @@
 > * RSS 소스를 `rss_sources.yaml` 로 관리
 > * 모든 수집 결과를 `raw_feeds/` 폴더에 JSON 형식으로 저장
 > * 네이버 검색 API 연동 및 광고 제거 기능 강화
+> * `deduplicate()` 함수로 동일 기사 자동 제거
 >
 > ⚠️ `feedparser` 가 설치되지 않으면 `main.py` 가 동작하지 않습니다.
 
@@ -15,10 +16,11 @@
 본 프로젝트는 다양한 RSS 피드를 수집·가공하여 **깨끗한 뉴스 요약 리스트**를 생성하는 Python 파이프라인입니다. 🤖 ➜ 📰 ➜ ✨
 
 1. **수집(Collect)** – RSS·API 등에서 최근 24시간 기사만 가져오기
-2. **정제(Clean)** – 광고·불필요 태그 제거, 공백(normalize whitespace) 통일
-3. **요약(Summarize)** – 필요한 경우 LLM·알고리즘으로 핵심만 추출
-4. **정렬(Sort)** – 발행일(`pub_date`) 기준 최신순 정렬
-5. **출력(Output)** – Markdown/JSON 등 원하는 포맷으로 저장
+2. **중복 제거(Deduplicate)** – 동일한 링크나 제목을 가진 기사 삭제
+3. **정제(Clean)** – 광고·불필요 태그 제거, 공백(normalize whitespace) 통일
+4. **요약(Summarize)** – 필요한 경우 LLM·알고리즘으로 핵심만 추출
+5. **정렬(Sort)** – 발행일(`pub_date`) 기준 최신순 정렬
+6. **출력(Output)** – Markdown/JSON 등 원하는 포맷으로 저장
 
 ---
 
@@ -123,9 +125,9 @@ raw_feeds/
  ┗ articles_20250613_131459.json
 ```
 
-`pipeline.py`의 각 단계는 `collect_articles()`, `enrich_articles()`,
-`sort_articles()`, `save_articles()` 함수로 나뉘어 있어 원하는 단계만 독립적으로
-호출할 수 있습니다.
+`pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`,
+`enrich_articles()`, `sort_articles()`, `save_articles()` 함수로 나뉘어 있어
+원하는 단계만 독립적으로 호출할 수 있습니다.
 
 ### 브라우저 스크립트 오류 확인
 

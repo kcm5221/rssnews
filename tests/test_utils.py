@@ -16,7 +16,7 @@ if "bs4" not in sys.modules:
 
 from utubenews.pipeline import sort_articles
 from utubenews.text_utils import clean_text
-from utubenews.utils import filter_keywords
+from utubenews.utils import filter_keywords, deduplicate
 
 
 class TestUtils(unittest.TestCase):
@@ -45,6 +45,19 @@ class TestUtils(unittest.TestCase):
         )
         self.assertEqual(len(result), 1)
         self.assertIn("프로그램", result[0]["title"])
+
+    def test_deduplicate(self):
+        arts = [
+            {"title": "t1", "link": "a"},
+            {"title": "t1", "link": "b"},
+            {"title": "t2", "link": "a"},
+            {"title": "t3", "link": "c"},
+        ]
+        result = deduplicate(arts)
+        self.assertEqual(len(result), 2)
+        titles = {a["title"] for a in result}
+        self.assertIn("t1", titles)
+        self.assertIn("t3", titles)
 
 
 if __name__ == "__main__":
