@@ -45,6 +45,30 @@
  ┗ README.md
 ```
 
+## rss_sources.yaml 설정
+
+`rss_sources.yaml` 파일은 수집할 RSS 혹은 네이버 검색 소스를 정의합니다.
+네이버 검색을 사용할 때는 `max_pages` 값을 통해 검색 페이지 수를 제한할 수
+있습니다.
+
+```yaml
+- type: naver
+  name: 네이버 IT 키워드
+  query: 인공지능
+  topic: IT
+  max_pages: 2
+```
+
+`max_pages` 를 1로 두면 다음과 같이 수집량을 줄일 수 있습니다.
+
+```yaml
+- type: naver
+  name: 테스트용
+  query: 임시
+  topic: IT
+  max_pages: 1
+```
+
 ---
 
 ## 요구 사항

@@ -18,6 +18,7 @@
   name: 네이버 IT/보안 키워드
   query: AI 칩셋 보안
   topic: IT
+  max_pages: 5
 
 # Additional sources for wider coverage
 - type: rss
