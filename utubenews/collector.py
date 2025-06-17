@@ -7,9 +7,14 @@ from pathlib import Path
 import yaml
 from .naver_news_client import fetch_naver_articles
 from .text_utils import clean_html_text
+from .utils import filter_keywords
 
 _LOG = logging.getLogger(__name__)
 _ALLOWED_TOPICS = {"IT", "게임", "AI", "보안", "프로그래밍"}
+
+# Articles are further filtered by these keyword lists.
+_INCLUDE_KEYWORDS = ["프로그램", "사이버 보안"]
+_EXCLUDE_KEYWORDS = ["보안 카메라", "공항 보안", "국가 안보"]
 
 _SRC_PATH = Path("rss_sources.yaml")
 
@@ -69,4 +74,11 @@ def collect_all(days: int = 1) -> list[dict]:
             )
     filtered = [a for a in collected if a.get("topic") in _ALLOWED_TOPICS]
     _LOG.info("허용된 토픽 %s 기사 %d건", list(_ALLOWED_TOPICS), len(filtered))
+
+    filtered = filter_keywords(
+        filtered,
+        include=_INCLUDE_KEYWORDS,
+        exclude=_EXCLUDE_KEYWORDS,
+    )
+    _LOG.info("키워드 필터 후 %d건", len(filtered))
     return filtered
