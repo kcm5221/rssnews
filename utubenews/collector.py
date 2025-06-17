@@ -61,7 +61,12 @@ def collect_all(days: int = 1) -> list[dict]:
         if src.get("type") == "rss":
             collected += _fetch_rss(src["url"], src.get("topic", ""), days=days)
         elif src.get("type") == "naver":
-            collected += fetch_naver_articles(src["query"], src.get("topic", ""), days=days)
+            collected += fetch_naver_articles(
+                src["query"],
+                src.get("topic", ""),
+                days=days,
+                max_pages=src.get("max_pages", 10),
+            )
     filtered = [a for a in collected if a.get("topic") in _ALLOWED_TOPICS]
     _LOG.info("허용된 토픽 %s 기사 %d건", list(_ALLOWED_TOPICS), len(filtered))
     return filtered
