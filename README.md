@@ -73,12 +73,11 @@
 
 ## 키워드 필터링
 
-`utubenews/collector.py` 에 정의된 `_INCLUDE_KEYWORDS` 와 `_EXCLUDE_KEYWORDS`
-목록을 수정하면 제목이나 설명에 포함될 키워드를 지정할 수 있습니다. 기본값은
-사이버 보안 관련 기사를 선별하도록 설정되어 있습니다.
+`utubenews/collector.py` 의 `_EXCLUDE_KEYWORDS` 목록을 수정하면 네이버 검색
+결과에서 제외할 단어를 지정할 수 있습니다. RSS 피드 기사는 키워드 필터링을
+적용하지 않고, 네이버 기사에 대해서만 제외 키워드가 동작합니다.
 
 ```python
-_INCLUDE_KEYWORDS = ["프로그램", "사이버 보안"]
 _EXCLUDE_KEYWORDS = ["보안 카메라", "공항 보안", "국가 안보"]
 ```
 

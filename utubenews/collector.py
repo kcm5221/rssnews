@@ -52,6 +52,7 @@ def _fetch_rss(url: str, topic: str, days: int = 1) -> list[dict]:
                 "summary":     clean_html_text(raw_sum),
                 "topic":       topic,
                 "pubDateISO":  pub_dt.isoformat(),
+                "src":         "rss",
             }
         )
     _LOG.info("✅ %s: %d 개", topic, len(items))
@@ -64,21 +65,30 @@ def collect_all(days: int = 1) -> list[dict]:
     collected: list[dict] = []
     for src in sources:
         if src.get("type") == "rss":
-            collected += _fetch_rss(src["url"], src.get("topic", ""), days=days)
+            arts = _fetch_rss(src["url"], src.get("topic", ""), days=days)
+            collected += arts
         elif src.get("type") == "naver":
-            collected += fetch_naver_articles(
+            arts = fetch_naver_articles(
                 src["query"],
                 src.get("topic", ""),
                 days=days,
                 max_pages=src.get("max_pages", 10),
             )
+            for a in arts:
+                a["src"] = "naver"
+            collected += arts
     filtered = [a for a in collected if a.get("topic") in _ALLOWED_TOPICS]
     _LOG.info("허용된 토픽 %s 기사 %d건", list(_ALLOWED_TOPICS), len(filtered))
 
-    filtered = filter_keywords(
-        filtered,
-        include=_INCLUDE_KEYWORDS,
+    naver_only = [a for a in filtered if a.get("src") == "naver"]
+    others = [a for a in filtered if a.get("src") != "naver"]
+
+    naver_only = filter_keywords(
+        naver_only,
+        include=None,
         exclude=_EXCLUDE_KEYWORDS,
     )
-    _LOG.info("키워드 필터 후 %d건", len(filtered))
+
+    filtered = others + naver_only
+    _LOG.info("네이버 키워드 필터 후 %d건", len(filtered))
     return filtered
