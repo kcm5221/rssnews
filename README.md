@@ -69,6 +69,19 @@
   max_pages: 1
 ```
 
+## 키워드 필터링
+
+`utubenews/collector.py` 에 정의된 `_INCLUDE_KEYWORDS` 와 `_EXCLUDE_KEYWORDS`
+목록을 수정하면 제목이나 설명에 포함될 키워드를 지정할 수 있습니다. 기본값은
+사이버 보안 관련 기사를 선별하도록 설정되어 있습니다.
+
+```python
+_INCLUDE_KEYWORDS = ["프로그램", "사이버 보안"]
+_EXCLUDE_KEYWORDS = ["보안 카메라", "공항 보안", "국가 안보"]
+```
+
+필요에 따라 위 목록을 원하는 단어로 바꾸고 파이프라인을 실행하세요.
+
 ---
 
 ## 요구 사항

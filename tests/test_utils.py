@@ -16,6 +16,7 @@ if "bs4" not in sys.modules:
 
 from utubenews.pipeline import sort_articles
 from utubenews.text_utils import clean_text
+from utubenews.utils import filter_keywords
 
 
 class TestUtils(unittest.TestCase):
@@ -30,6 +31,20 @@ class TestUtils(unittest.TestCase):
         ]
         sorted_arts = sort_articles(arts)
         self.assertEqual(sorted_arts[0]["title"], "new")
+
+    def test_filter_keywords(self):
+        arts = [
+            {"title": "새 보안 프로그램 출시", "description": "사이버 보안 기능"},
+            {"title": "공항 보안 강화", "description": "경비"},
+            {"title": "게임 업데이트", "description": "신규 맵"},
+        ]
+        result = filter_keywords(
+            arts,
+            include=["프로그램", "사이버 보안"],
+            exclude=["보안 카메라", "공항 보안", "국가 안보"],
+        )
+        self.assertEqual(len(result), 1)
+        self.assertIn("프로그램", result[0]["title"])
 
 
 if __name__ == "__main__":
