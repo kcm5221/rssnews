@@ -172,6 +172,7 @@ $ python -m unittest discover -s tests -v
 | --------------------------------- | ----------- | ---------------------------------------------- |
 | `ModuleNotFoundError: feedparser` | 의존 패키지 누락   | `pip install feedparser`                       |
 | 기사 본문이 비정상적으로 길거나 HTML 태그 포함      | 광고 제거 로직 실패 | `utubenews/article_extractor.py` 의 `clean_text()` 규칙 수정 |
+| `HTTPError: 401`                  | 네이버 API 키 누락 또는 잘못됨 | `.env`의 `NAVER_CLIENT_ID`와 `NAVER_CLIENT_SECRET` 값을 설정 |
 
 ---
 
