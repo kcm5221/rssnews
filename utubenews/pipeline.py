@@ -44,7 +44,14 @@ def save_articles(articles: list[dict], directory: Path = RAW_DIR) -> Path:
     return out_path
 
 def run(days: int = 1) -> Path:
-    """Run the full pipeline and return the output path."""
+    """Execute the full pipeline and return the output file path.
+
+    Parameters
+    ----------
+    days : int, optional
+        Range of days to collect articles for. Only articles newer than
+        ``days`` are processed.
+    """
     _LOG.info("파이프라인 시작")
     arts = collect_articles(days=days)
     arts = deduplicate(arts)

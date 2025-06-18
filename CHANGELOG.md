@@ -7,3 +7,6 @@
 - Add docstrings and typing
 - Provide example tests
 - Allow setting `max_pages` for Naver sources via `rss_sources.yaml`
+- Improve pipeline and collector docstrings
+- Add `examples/run_pipeline.py` usage sample
+- Add tests for summarization utilities
