@@ -34,8 +34,6 @@ def fetch_naver_articles(
     query: str, topic: str, days: int = 1, max_pages: int = 10
 ) -> list[dict]:
     """Collect recent articles matching ``query`` and tag them with ``topic``."""
-
-
     now = dt.datetime.now()
     cutoff = now - dt.timedelta(days=days)
     articles: list[dict] = []
