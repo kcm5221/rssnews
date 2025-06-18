@@ -60,7 +60,13 @@ def _fetch_rss(url: str, topic: str, days: int = 1) -> list[dict]:
 
 # -----------------------------------------------------------------------------
 def collect_all(days: int = 1) -> list[dict]:
-    """모든 소스에서 기사를 수집합니다."""
+    """Return articles from all configured sources.
+
+    Parameters
+    ----------
+    days : int, optional
+        Only include articles published within the last ``days``.
+    """
     sources = _load_sources()
     collected: list[dict] = []
     for src in sources:

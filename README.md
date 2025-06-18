@@ -122,6 +122,9 @@ $ cp .env.sample .env
 # 기본 파이프라인 실행
 $ python main.py
 
+# 예시 스크립트 실행
+$ python examples/run_pipeline.py
+
 # 결과 파일 예시
 raw_feeds/
  ┗ articles_20250613_131459.json
