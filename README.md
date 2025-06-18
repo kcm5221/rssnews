@@ -56,7 +56,7 @@
 ```yaml
 - type: naver
   name: 네이버 IT 키워드
-  query: 인공지능
+  query: IT
   topic: IT
   max_pages: 2
 ```
@@ -78,7 +78,7 @@
 적용하지 않고, 네이버 기사에 대해서만 제외 키워드가 동작합니다.
 
 ```python
-_EXCLUDE_KEYWORDS = ["보안 카메라", "공항 보안", "국가 안보"]
+_EXCLUDE_KEYWORDS = ["공항", "cctv", "경비"]
 ```
 
 필요에 따라 위 목록을 원하는 단어로 바꾸고 파이프라인을 실행하세요.

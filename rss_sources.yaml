@@ -36,6 +36,10 @@
   query: 보안
   topic: 보안
 - type: naver
+  name: 네이버 IT 키워드
+  query: IT
+  topic: IT
+- type: naver
   name: 네이버 프로그래밍 키워드
   query: 프로그래밍
   topic: 프로그래밍

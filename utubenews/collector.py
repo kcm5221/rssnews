@@ -14,7 +14,7 @@ _ALLOWED_TOPICS = {"IT", "게임", "AI", "보안", "프로그래밍"}
 
 # Articles are further filtered by these keyword lists.
 _INCLUDE_KEYWORDS = ["프로그램", "사이버 보안"]
-_EXCLUDE_KEYWORDS = ["보안 카메라", "공항 보안", "국가 안보"]
+_EXCLUDE_KEYWORDS = ["공항", "cctv", "경비"]
 
 _SRC_PATH = Path("rss_sources.yaml")
 
