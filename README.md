@@ -189,4 +189,5 @@ $ python -m unittest discover -s tests -v
 
 ## 라이선스
 
-이 프로젝트의 저작권은 본인(© KCM)에게 있습니다.
+본 프로젝트는 [MIT 라이선스](LICENSE) 하에 배포됩니다. 자세한 내용은
+LICENSE 파일을 참고하세요.
