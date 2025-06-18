@@ -41,7 +41,7 @@ class TestUtils(unittest.TestCase):
         result = filter_keywords(
             arts,
             include=["프로그램", "사이버 보안"],
-            exclude=["보안 카메라", "공항 보안", "국가 안보"],
+            exclude=["공항", "cctv", "경비"],
         )
         self.assertEqual(len(result), 1)
         self.assertIn("프로그램", result[0]["title"])
