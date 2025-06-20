@@ -32,7 +32,6 @@
  ┃ ┣ __init__.py
  ┃ ┣ article_extractor.py
  ┃ ┣ collector.py
- ┃ ┣ naver_client.py
  ┃ ┣ naver_news_client.py
  ┃ ┣ pipeline.py
  ┃ ┣ summarizer.py
