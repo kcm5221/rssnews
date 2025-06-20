@@ -5,12 +5,14 @@ from __future__ import annotations
 import re, requests, bs4, logging
 from .text_utils import clean_html_text, clean_text
 
+HEADERS = {"User-Agent": "Mozilla/5.0"}
+
 _LOG = logging.getLogger(__name__)
 
 def extract_main_text(url: str, min_len: int = 30) -> str:
     """Return cleaned main body text from the article page."""
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=10, headers=HEADERS)
         response.raise_for_status()
         html = response.text
         return clean_html_text(html, min_len=min_len)
