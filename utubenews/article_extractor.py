@@ -2,15 +2,18 @@
 본문 추출 · 초간단 요약기
 """
 from __future__ import annotations
-import re, requests, bs4
+import re, requests, bs4, logging
 from .text_utils import clean_html_text, clean_text
+
+_LOG = logging.getLogger(__name__)
 
 def extract_main_text(url: str, min_len: int = 30) -> str:
     """Return cleaned main body text from the article page."""
     try:
         html = requests.get(url, timeout=10).text
         return clean_html_text(html, min_len=min_len)
-    except Exception:
+    except Exception as e:
+        _LOG.warning("Failed to fetch %s: %s", url, e)
         return ""
 
 def quick_summarize(title: str, text: str, max_sent: int = 3) -> str:
