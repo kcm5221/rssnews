@@ -54,6 +54,41 @@ class TestCollectAll(unittest.TestCase):
         naver_item_with_src = dict(naver_item, src="naver")
         self.assertIn(naver_item_with_src, result)
 
+    def test_collect_all_filters_naver_by_keywords(self):
+        good = {
+            "title": "새 보안 프로그램 출시",
+            "link": "l1",
+            "summary": "",
+            "topic": "IT",
+            "pubDateISO": "2025",
+        }
+        bad = {
+            "title": "게임 업데이트",
+            "link": "l2",
+            "summary": "",
+            "topic": "IT",
+            "pubDateISO": "2025",
+        }
+
+        def fake_load():
+            return [{"type": "naver", "query": "q", "topic": "IT"}]
+
+        def fake_naver(query, topic, days=1, max_pages=10):
+            return [good, bad]
+
+        orig_load = collector._load_sources
+        orig_naver = collector.fetch_naver_articles
+        collector._load_sources = fake_load
+        collector.fetch_naver_articles = fake_naver
+        try:
+            result = collector.collect_all(days=1)
+        finally:
+            collector._load_sources = orig_load
+            collector.fetch_naver_articles = orig_naver
+
+        expected = [dict(good, src="naver")]
+        self.assertEqual(result, expected)
+
 class TestEnrichArticles(unittest.TestCase):
     def test_enrich_articles_uses_summary_or_body(self):
         art_with_sum = {"title": "T1", "link": "L1", "summary": "SUM"}
