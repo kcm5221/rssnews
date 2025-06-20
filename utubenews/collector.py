@@ -91,7 +91,7 @@ def collect_all(days: int = 1) -> list[dict]:
 
     naver_only = filter_keywords(
         naver_only,
-        include=None,
+        include=_INCLUDE_KEYWORDS,
         exclude=_EXCLUDE_KEYWORDS,
     )
 
