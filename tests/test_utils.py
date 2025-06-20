@@ -59,6 +59,21 @@ class TestUtils(unittest.TestCase):
         self.assertIn("t1", titles)
         self.assertIn("t3", titles)
 
+    def test_deduplicate_case_whitespace(self):
+        arts = [
+            {"title": "Title1", "link": "http://a.com "},
+            {"title": " title1 ", "link": "HTTP://A.COM"},
+            {"title": "Title2 ", "link": "http://b.com"},
+            {"title": "TITLE2", "link": " http://b.com"},
+            {"title": "Title3", "link": "http://c.com"},
+        ]
+        result = deduplicate(arts)
+        self.assertEqual(len(result), 3)
+        titles = [a["title"] for a in result]
+        self.assertEqual(titles[0], "Title1")
+        self.assertEqual(titles[1], "Title2 ")
+        self.assertEqual(titles[2], "Title3")
+
 
 if __name__ == "__main__":
     unittest.main()

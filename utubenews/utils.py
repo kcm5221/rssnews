@@ -86,8 +86,8 @@ def deduplicate(articles: list[dict]) -> list[dict]:
     unique: list[dict] = []
 
     for art in articles:
-        link = art.get("link") or ""
-        title = art.get("title") or ""
+        link = (art.get("link") or "").strip().lower()
+        title = (art.get("title") or "").strip().lower()
 
         if link in seen_links or title in seen_titles:
             continue
