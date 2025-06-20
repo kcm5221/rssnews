@@ -10,10 +10,15 @@ _LOG = logging.getLogger(__name__)
 def extract_main_text(url: str, min_len: int = 30) -> str:
     """Return cleaned main body text from the article page."""
     try:
-        html = requests.get(url, timeout=10).text
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        html = response.text
         return clean_html_text(html, min_len=min_len)
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         _LOG.warning("Failed to fetch %s: %s", url, e)
+        return ""
+    except Exception as e:
+        _LOG.warning("Failed to parse %s: %s", url, e)
         return ""
 
 def quick_summarize(title: str, text: str, max_sent: int = 3) -> str:
