@@ -110,7 +110,7 @@ $ git clone <repo_url>
 $ cd <repo_root>
 
 # 의존성 설치
-$ pip install -r requirements.txt
+$ pip install -r requirements.txt  # deep_translator>=1.11 포함
 # 환경 파일 준비
 $ cp .env.sample .env
 ```
@@ -146,11 +146,11 @@ $ SCRIPT_LANG=ja python main.py  # 일본어로 번역
 $ SCRIPT_LANG=ko python main.py
 ```
 
-이 기능을 사용하려면 `googletrans` (또는 `deep_translator`) 패키지가 필요합니다.
-필요 시 다음과 같이 설치하세요.
+이 기능을 사용하려면 `googletrans` 와 `deep_translator` 패키지가 필요합니다.
+두 패키지는 `requirements.txt` 에 포함되어 있습니다. 필요 시 수동으로 설치하려면 다음과 같이 실행하세요.
 
 ```bash
-$ pip install googletrans==4.0.0-rc1
+$ pip install googletrans==4.0.0-rc1 deep_translator>=1.11
 ```
 
 스크립트가 매우 길 경우 내부적으로 약 5000자 단위로 나누어 순차적으로
@@ -205,11 +205,11 @@ $ python -m unittest discover -s tests -v
 
 ### 번역 오류 해결
 
-번역 기능은 인터넷 연결을 필요로 하며 `deep_translator` 패키지가 설치되어야 정상 작동합니다.
-만약 실행 중 `Translation failed` 경고가 표시되면 네트워크 접근이 가능한지 먼저 확인하고 필요한 경우 다음과 같이 설치하세요.
+번역 기능은 인터넷 연결을 필요로 하며 `deep_translator` 패키지가 설치되어야 정상 작동합니다. 기본적으로 `requirements.txt` 에 포함되어 있으므로 별도 설치가 필요하지 않습니다.
+실행 중 `Translation failed` 경고가 표시되면 네트워크 접근을 확인하고 필요한 경우 다음과 같이 재설치하세요.
 
 ```bash
-$ pip install deep_translator
+$ pip install deep_translator>=1.11
 ```
 
 이후 다시 명령을 실행하면 대부분 문제가 해결됩니다.
