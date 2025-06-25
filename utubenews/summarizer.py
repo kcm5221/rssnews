@@ -5,6 +5,9 @@ from __future__ import annotations
 import re
 import textwrap
 from typing import Optional
+import logging
+
+_LOG = logging.getLogger(__name__)
 
 
 def translate_text(text: str, target_lang: str) -> str:
@@ -24,6 +27,7 @@ def translate_text(text: str, target_lang: str) -> str:
 
             return GoogleTranslator(source="auto", target=target_lang).translate(text)
         except Exception:
+            _LOG.warning("Translation to %s failed via googletrans", target_lang)
             return text
 
 BULLET = "\u2022"
