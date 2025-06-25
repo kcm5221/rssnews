@@ -8,7 +8,7 @@ if "requests" not in sys.modules:
 if "bs4" not in sys.modules:
     sys.modules["bs4"] = types.ModuleType("bs4")
 
-from utubenews.summarizer import simple_summary
+from utubenews.summarizer import simple_summary, build_casual_script
 from utubenews.article_extractor import quick_summarize
 
 class TestSummaries(unittest.TestCase):
@@ -20,6 +20,14 @@ class TestSummaries(unittest.TestCase):
         t = "Title"
         short = "short text"
         self.assertTrue(quick_summarize(t, short).startswith(short))
+
+    def test_build_casual_script(self):
+        arts = [{"script": "A. B. C."}, {"script": "D! E. F. G."}]
+        result = build_casual_script(arts)
+        self.assertIn("A", result)
+        self.assertIn("B", result)
+        self.assertIn("D!", result)
+        self.assertTrue(result.strip().endswith("😊"))
 
 if __name__ == "__main__":
     unittest.main()
