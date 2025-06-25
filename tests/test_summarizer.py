@@ -51,6 +51,45 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(called["lang"], "en")
         self.assertEqual(result, "X")
 
+    def test_translate_text_splits_large_input(self):
+        class DummyTranslator:
+            last_arg = None
+
+            def translate(self, text, dest=None):
+                DummyTranslator.last_arg = text
+                if isinstance(text, list):
+                    return [types.SimpleNamespace(text=t.upper()) for t in text]
+                return types.SimpleNamespace(text=text.upper())
+
+        gt_mod = types.ModuleType("googletrans")
+        gt_mod.Translator = DummyTranslator
+        orig_gt = sys.modules.get("googletrans")
+        orig_dt = sys.modules.get("deep_translator")
+        sys.modules["googletrans"] = gt_mod
+        sys.modules["deep_translator"] = types.ModuleType("deep_translator")
+
+        line1 = "a" * 4000
+        line2 = "b" * 2000
+        raw = line1 + "\n" + line2
+
+        try:
+            result = summarizer.translate_text(raw, "en")
+        finally:
+            if orig_gt is not None:
+                sys.modules["googletrans"] = orig_gt
+            else:
+                del sys.modules["googletrans"]
+            if orig_dt is not None:
+                sys.modules["deep_translator"] = orig_dt
+            else:
+                del sys.modules["deep_translator"]
+
+        expected_segments = [line1 + "\n", line2]
+
+        self.assertEqual(DummyTranslator.last_arg, expected_segments)
+        self.assertIsInstance(DummyTranslator.last_arg, list)
+        self.assertEqual(result, line1.upper() + "\n" + line2.upper())
+
 if __name__ == "__main__":
     unittest.main()
 

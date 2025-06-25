@@ -153,6 +153,9 @@ $ SCRIPT_LANG=ko python main.py
 $ pip install googletrans==4.0.0-rc1
 ```
 
+스크립트가 매우 길 경우 내부적으로 약 5000자 단위로 나누어 순차적으로
+번역한 뒤 다시 합치므로 길이에 상관없이 안정적으로 사용할 수 있습니다.
+
 `pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`,
 `enrich_articles()`, `sort_articles()`, `save_articles()` 함수로 나뉘어 있어
 원하는 단계만 독립적으로 호출할 수 있습니다.
