@@ -53,12 +53,10 @@ class TestSummaries(unittest.TestCase):
 
     def test_translate_text_splits_large_input(self):
         class DummyTranslator:
-            last_arg = None
+            calls = []
 
             def translate(self, text, dest=None):
-                DummyTranslator.last_arg = text
-                if isinstance(text, list):
-                    return [types.SimpleNamespace(text=t.upper()) for t in text]
+                DummyTranslator.calls.append(text)
                 return types.SimpleNamespace(text=text.upper())
 
         gt_mod = types.ModuleType("googletrans")
@@ -86,9 +84,44 @@ class TestSummaries(unittest.TestCase):
 
         expected_segments = [line1 + "\n", line2]
 
-        self.assertEqual(DummyTranslator.last_arg, expected_segments)
-        self.assertIsInstance(DummyTranslator.last_arg, list)
+        self.assertEqual(DummyTranslator.calls, expected_segments)
         self.assertEqual(result, line1.upper() + "\n" + line2.upper())
+
+    def test_translate_text_partial_failure_keeps_chunks(self):
+        class DummyTranslator:
+            calls = []
+
+            def translate(self, text, dest=None):
+                DummyTranslator.calls.append(text)
+                if text == "bad":
+                    raise RuntimeError("boom")
+                return types.SimpleNamespace(text=text.upper())
+
+        gt_mod = types.ModuleType("googletrans")
+        gt_mod.Translator = DummyTranslator
+        orig_gt = sys.modules.get("googletrans")
+        orig_dt = sys.modules.get("deep_translator")
+        sys.modules["googletrans"] = gt_mod
+        sys.modules["deep_translator"] = types.ModuleType("deep_translator")
+
+        orig_chunk = summarizer._chunk_text
+        summarizer._chunk_text = lambda x: ["good", "bad", "last"]
+
+        try:
+            result = summarizer.translate_text("irrelevant", "en")
+        finally:
+            summarizer._chunk_text = orig_chunk
+            if orig_gt is not None:
+                sys.modules["googletrans"] = orig_gt
+            else:
+                del sys.modules["googletrans"]
+            if orig_dt is not None:
+                sys.modules["deep_translator"] = orig_dt
+            else:
+                del sys.modules["deep_translator"]
+
+        self.assertEqual(DummyTranslator.calls, ["good", "bad", "last"])
+        self.assertEqual(result, "GOODbadLAST")
 
 if __name__ == "__main__":
     unittest.main()

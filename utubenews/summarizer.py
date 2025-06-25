@@ -53,12 +53,19 @@ def translate_text(text: str, target_lang: str) -> str:
         from googletrans import Translator  # type: ignore
 
         translator = Translator()
-        if len(parts) == 1:
-            return translator.translate(parts[0], dest=target_lang).text
-        result = translator.translate(parts, dest=target_lang)
-        if not isinstance(result, list):
-            result = [result]
-        return "".join(r.text for r in result)
+        translated_parts = []
+        for idx, part in enumerate(parts):
+            try:
+                translated_parts.append(
+                    translator.translate(part, dest=target_lang).text
+                )
+            except Exception as exc:  # pragma: no cover - log only
+                _LOG.warning(
+                    "googletrans failed for chunk %d: %s", idx, exc
+                )
+                translated_parts.append(part)
+
+        return "".join(translated_parts)
     except Exception as exc:
         _LOG.warning(
             "googletrans failed to translate to %s: %s", target_lang, exc
@@ -68,10 +75,17 @@ def translate_text(text: str, target_lang: str) -> str:
         from deep_translator import GoogleTranslator  # type: ignore
 
         translator = GoogleTranslator(source="auto", target=target_lang)
-        if len(parts) == 1:
-            return translator.translate(parts[0])
-        translated = [translator.translate(p) for p in parts]
-        return "".join(translated)
+        translated_parts = []
+        for idx, part in enumerate(parts):
+            try:
+                translated_parts.append(translator.translate(part))
+            except Exception as exc:  # pragma: no cover - log only
+                _LOG.warning(
+                    "deep_translator failed for chunk %d: %s", idx, exc
+                )
+                translated_parts.append(part)
+
+        return "".join(translated_parts)
     except Exception as exc:
         _LOG.warning(
             "deep_translator failed to translate to %s: %s", target_lang, exc
