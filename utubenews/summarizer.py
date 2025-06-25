@@ -4,6 +4,27 @@ from __future__ import annotations
 
 import re
 import textwrap
+from typing import Optional
+
+
+def translate_text(text: str, target_lang: str) -> str:
+    """Translate ``text`` into ``target_lang`` if possible.
+
+    This uses :mod:`googletrans` or :mod:`deep_translator` if available.
+    If translation fails for any reason, the original ``text`` is returned.
+    """
+
+    try:
+        from googletrans import Translator  # type: ignore
+
+        return Translator().translate(text, dest=target_lang).text
+    except Exception:
+        try:
+            from deep_translator import GoogleTranslator  # type: ignore
+
+            return GoogleTranslator(source="auto", target=target_lang).translate(text)
+        except Exception:
+            return text
 
 BULLET = "\u2022"
 
@@ -35,7 +56,7 @@ def build_script(title: str, body: str, source: str, license: str) -> str:
     ).strip()
 
 
-def build_casual_script(articles: list[dict]) -> str:
+def build_casual_script(articles: list[dict], target_lang: Optional[str] = None) -> str:
     """Return a casual one-person news script from ``articles``.
 
     Each article dict is expected to contain a ``"script"`` field holding a
@@ -61,4 +82,7 @@ def build_casual_script(articles: list[dict]) -> str:
         parts.append(part)
 
     parts.append("오늘 뉴스 여기까지! 좋은 하루 보내세요 😊")
-    return "\n\n".join(parts)
+    script = "\n\n".join(parts)
+    if target_lang:
+        return translate_text(script, target_lang)
+    return script
