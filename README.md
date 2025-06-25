@@ -125,6 +125,7 @@ $ cp .env.sample .env
 ```bash
 # 기본 파이프라인 실행
 $ python main.py
+# 위 명령을 실행하면 기사 요약이 저장되고 "articles_*.txt" 대본 파일도 함께 생성됩니다.
 
 # 예시 스크립트 실행
 $ python examples/run_pipeline.py
