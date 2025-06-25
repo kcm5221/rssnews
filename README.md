@@ -139,8 +139,11 @@ raw_feeds/
 
 ```bash
 $ python main.py --lang en      # 영어로 번역
+# 한국어 예시
+$ python main.py --lang ko
 # 또는
 $ SCRIPT_LANG=ja python main.py  # 일본어로 번역
+$ SCRIPT_LANG=ko python main.py
 ```
 
 이 기능을 사용하려면 `googletrans` (또는 `deep_translator`) 패키지가 필요합니다.
