@@ -135,6 +135,21 @@ raw_feeds/
  ┗ articles_20250613_131459.json
 ```
 
+대본을 다른 언어로 출력하고 싶다면 `--lang` 옵션이나 `SCRIPT_LANG` 환경 변수를 사용합니다.
+
+```bash
+$ python main.py --lang en      # 영어로 번역
+# 또는
+$ SCRIPT_LANG=ja python main.py  # 일본어로 번역
+```
+
+이 기능을 사용하려면 `googletrans` (또는 `deep_translator`) 패키지가 필요합니다.
+필요 시 다음과 같이 설치하세요.
+
+```bash
+$ pip install googletrans==4.0.0-rc1
+```
+
 `pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`,
 `enrich_articles()`, `sort_articles()`, `save_articles()` 함수로 나뉘어 있어
 원하는 단계만 독립적으로 호출할 수 있습니다.
