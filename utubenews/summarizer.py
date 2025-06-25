@@ -4,10 +4,40 @@ from __future__ import annotations
 
 import re
 import textwrap
-from typing import Optional
+from typing import Optional, List
 import logging
 
 _LOG = logging.getLogger(__name__)
+
+# maximum characters allowed in a single translation request
+MAX_TRANSLATE_CHARS = 5000
+
+
+def _chunk_text(text: str) -> List[str]:
+    """Split ``text`` into <= ``MAX_TRANSLATE_CHARS`` sized chunks."""
+    if len(text) <= MAX_TRANSLATE_CHARS:
+        return [text]
+
+    parts: List[str] = []
+    current = ""
+    for line in text.splitlines(keepends=True):
+        if len(current) + len(line) > MAX_TRANSLATE_CHARS and current:
+            parts.append(current)
+            current = line
+        else:
+            current += line
+    if current:
+        parts.append(current)
+
+    # Fallback in case a single line is extremely long
+    result: List[str] = []
+    for part in parts:
+        if len(part) <= MAX_TRANSLATE_CHARS:
+            result.append(part)
+        else:
+            for i in range(0, len(part), MAX_TRANSLATE_CHARS):
+                result.append(part[i : i + MAX_TRANSLATE_CHARS])
+    return result
 
 
 def translate_text(text: str, target_lang: str) -> str:
@@ -17,10 +47,18 @@ def translate_text(text: str, target_lang: str) -> str:
     If translation fails for any reason, the original ``text`` is returned.
     """
 
+    parts = _chunk_text(text)
+
     try:
         from googletrans import Translator  # type: ignore
 
-        return Translator().translate(text, dest=target_lang).text
+        translator = Translator()
+        if len(parts) == 1:
+            return translator.translate(parts[0], dest=target_lang).text
+        result = translator.translate(parts, dest=target_lang)
+        if not isinstance(result, list):
+            result = [result]
+        return "".join(r.text for r in result)
     except Exception as exc:
         _LOG.warning(
             "googletrans failed to translate to %s: %s", target_lang, exc
@@ -29,7 +67,11 @@ def translate_text(text: str, target_lang: str) -> str:
     try:
         from deep_translator import GoogleTranslator  # type: ignore
 
-        return GoogleTranslator(source="auto", target=target_lang).translate(text)
+        translator = GoogleTranslator(source="auto", target=target_lang)
+        if len(parts) == 1:
+            return translator.translate(parts[0])
+        translated = [translator.translate(p) for p in parts]
+        return "".join(translated)
     except Exception as exc:
         _LOG.warning(
             "deep_translator failed to translate to %s: %s", target_lang, exc
