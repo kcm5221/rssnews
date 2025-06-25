@@ -21,14 +21,20 @@ def translate_text(text: str, target_lang: str) -> str:
         from googletrans import Translator  # type: ignore
 
         return Translator().translate(text, dest=target_lang).text
-    except Exception:
-        try:
-            from deep_translator import GoogleTranslator  # type: ignore
+    except Exception as exc:
+        _LOG.warning(
+            "googletrans failed to translate to %s: %s", target_lang, exc
+        )
 
-            return GoogleTranslator(source="auto", target=target_lang).translate(text)
-        except Exception:
-            _LOG.warning("Translation to %s failed via googletrans", target_lang)
-            return text
+    try:
+        from deep_translator import GoogleTranslator  # type: ignore
+
+        return GoogleTranslator(source="auto", target=target_lang).translate(text)
+    except Exception as exc:
+        _LOG.warning(
+            "deep_translator failed to translate to %s: %s", target_lang, exc
+        )
+        return text
 
 BULLET = "\u2022"
 
