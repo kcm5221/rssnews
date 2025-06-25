@@ -200,6 +200,18 @@ $ python -m unittest discover -s tests -v
 | 기사 본문이 비정상적으로 길거나 HTML 태그 포함      | 광고 제거 로직 실패 | `utubenews/article_extractor.py` 의 `clean_text()` 규칙 수정 |
 | `HTTPError: 401`                  | 네이버 API 키 누락 또는 잘못됨 | `.env`의 `NAVER_CLIENT_ID`와 `NAVER_CLIENT_SECRET` 값을 설정 |
 
+### 번역 오류 해결
+
+번역 기능은 인터넷 연결을 필요로 하며 `deep_translator` 패키지가 설치되어야 정상 작동합니다.
+만약 실행 중 `Translation failed` 경고가 표시되면 네트워크 접근이 가능한지 먼저 확인하고 필요한 경우 다음과 같이 설치하세요.
+
+```bash
+$ pip install deep_translator
+```
+
+이후 다시 명령을 실행하면 대부분 문제가 해결됩니다.
+
+
 ---
 
 ## 기여 방법
