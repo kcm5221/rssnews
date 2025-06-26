@@ -2,7 +2,10 @@ import re
 import bs4
 
 _RE_WS = re.compile(r"\s+")
-_AD_PAT = re.compile(r"(?i)advert|sponsor|subscribe|광고|후원")
+_AD_PAT = re.compile(
+    r"advert|sponsor|subscribe|table of contents|\[hide\]|광고|후원|목차",
+    re.I,
+)
 
 def clean_text(text: str) -> str:
     """Normalize whitespace and drop ad-like lines."""

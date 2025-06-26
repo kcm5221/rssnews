@@ -24,6 +24,10 @@ class TestUtils(unittest.TestCase):
         sample = "Hello\n광고 배너\nWorld"
         self.assertEqual(clean_text(sample), "Hello World")
 
+    def test_clean_text_strips_toc_markers(self):
+        sample = "Intro\nTable of Contents\n[hide]\n목차\nContent"
+        self.assertEqual(clean_text(sample), "Intro Content")
+
     def test_sort_articles(self):
         arts = [
             {"title": "old", "pubDateISO": "2024-01-01T00:00:00"},
