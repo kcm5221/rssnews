@@ -239,3 +239,34 @@ def build_topic_script(articles: List[dict], target_lang: Optional[str] = None) 
     if target_lang:
         script = translate_text(script, target_lang)
     return clean_text(script)
+
+
+def postprocess_script(text: str, max_sent: int = 12) -> str:
+    """Return ``text`` split into TTS-friendly sections.
+
+    The input is broken into short sentences using :func:`split_sentences` and
+    then grouped into blocks of ``max_sent`` sentences. A transition phrase is
+    inserted between blocks and a closing line is appended.
+    """
+
+    from .text_utils import split_sentences
+
+    sents = split_sentences(text)
+    if not sents:
+        return "오늘 뉴스는 여기까지입니다."
+
+    transitions = ["계속해서 전하겠습니다.", "이어서 볼까요?", "다음 소식입니다~"]
+    trans_idx = 0
+    blocks: list[str] = []
+    for i in range(0, len(sents), max_sent):
+        blocks.append(" ".join(sents[i : i + max_sent]))
+
+    lines: list[str] = []
+    for idx, block in enumerate(blocks):
+        lines.append(block)
+        if idx < len(blocks) - 1:
+            lines.append(transitions[trans_idx % len(transitions)])
+            trans_idx += 1
+
+    lines.append("오늘 뉴스는 여기까지입니다.")
+    return "\n\n".join(lines)
