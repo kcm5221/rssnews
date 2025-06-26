@@ -98,7 +98,7 @@ BULLET = "\u2022"
 def simple_summary(text: str, max_sent: int = 3) -> str:
     """Return the ``max_sent`` longest sentences from ``text``."""
 
-    sentences = re.split(r"(?<=[.!?]) +", text)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
     sentences = sorted(sentences, key=len, reverse=True)[:max_sent]
     return " ".join(sentences)
 
