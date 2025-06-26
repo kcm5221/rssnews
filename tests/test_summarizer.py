@@ -9,7 +9,12 @@ if "bs4" not in sys.modules:
     sys.modules["bs4"] = types.ModuleType("bs4")
 
 from utubenews import summarizer
-from utubenews.summarizer import simple_summary, build_casual_script, summarize_blocks
+from utubenews.summarizer import (
+    simple_summary,
+    build_casual_script,
+    summarize_blocks,
+    build_topic_script,
+)
 from utubenews.article_extractor import quick_summarize
 
 class TestSummaries(unittest.TestCase):
@@ -129,6 +134,18 @@ class TestSummaries(unittest.TestCase):
 
         self.assertEqual(DummyTranslator.calls, ["good", "bad", "last"])
         self.assertEqual(result, "GOODbadLAST")
+
+    def test_build_topic_script_groups_and_transitions(self):
+        arts = [
+            {"topic": "IT", "script": "메타 AI 모델 발표. 새 기능 공개."},
+            {"topic": "보안", "script": "패치 배포. 취약점 고쳤다."},
+        ]
+
+        result = build_topic_script(arts)
+        self.assertIn("▶ IT", result)
+        self.assertIn("▶ 보안", result)
+        self.assertIn("다음 소식입니다~", result)
+        self.assertTrue(result.strip().endswith("찾아뵐게요!"))
 
 if __name__ == "__main__":
     unittest.main()

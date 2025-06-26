@@ -170,3 +170,68 @@ def summarize_blocks(blocks: List[str], max_sent: int = 1) -> List[str]:
             continue
         summaries.append(simple_summary(cleaned, max_sent=max_sent))
     return summaries
+
+
+def _annotate_terms(text: str) -> str:
+    """Return ``text`` with English terms duplicated in parentheses."""
+    import re
+
+    def repl(match: re.Match) -> str:
+        eng = match.group(2)
+        if f"({eng})" in match.group(0):
+            return match.group(0)
+        return f"{match.group(1)} {eng}({eng})"
+
+    return re.sub(r"([\uAC00-\uD7A3]+)\s+([A-Za-z][A-Za-z0-9\- ]*)", repl, text)
+
+
+def build_topic_script(articles: List[dict], target_lang: Optional[str] = None) -> str:
+    """Return a topic-grouped broadcast script from ``articles``.
+
+    Articles are grouped by the ``"topic"`` field. Each article summary is
+    trimmed to two sentences with up to 40 characters per sentence. Short
+    transition phrases are inserted between articles and the script ends with
+    a friendly closing line.
+    """
+    from collections import defaultdict
+    from .text_utils import split_sentences, clean_text
+
+    topic_map: defaultdict[str, list[dict]] = defaultdict(list)
+    for art in articles:
+        topic = art.get("topic") or "기타"
+        topic_map[topic].append(art)
+
+    base_order = ["IT", "보안", "게임", "AI"]
+    topics = [t for t in base_order if t in topic_map] + [
+        t for t in topic_map.keys() if t not in base_order
+    ]
+
+    transitions = ["다음 소식입니다~", "이어서 볼까요?", "계속해서 전하겠습니다."]
+    trans_idx = 0
+    lines: list[str] = []
+
+    for ti, topic in enumerate(topics):
+        lines.append(f"▶ {topic}")
+        arts = topic_map[topic]
+        for ai, art in enumerate(arts):
+            raw = art.get("script") or art.get("title", "")
+            sents = split_sentences(raw)[:2]
+            trimmed = []
+            for s in sents:
+                s = s.strip()
+                if len(s) > 40:
+                    s = s[:40]
+                trimmed.append(s)
+            summary = _annotate_terms(" ".join(trimmed))
+            lines.append(clean_text(summary))
+            last_topic = ti == len(topics) - 1
+            last_art = ai == len(arts) - 1
+            if not (last_topic and last_art):
+                lines.append(transitions[trans_idx % len(transitions)])
+                trans_idx += 1
+
+    lines.append("오늘 소식은 여기까지입니다. 내일도 알찬 뉴스로 찾아뵐게요!")
+    script = "\n".join(lines)
+    if target_lang:
+        script = translate_text(script, target_lang)
+    return clean_text(script)
