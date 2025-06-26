@@ -51,7 +51,6 @@ def merge_text_blocks(texts: list[str], titles: list[str] | None = None) -> str:
         out_parts.append(block)
     return "\n\n".join(out_parts)
 
-
 def split_sentences(text: str, filler: str = "입니다.") -> list[str]:
     """Return cleaned short sentences from ``text``.
 

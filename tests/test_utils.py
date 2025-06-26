@@ -91,6 +91,5 @@ class TestUtils(unittest.TestCase):
         result = split_sentences("인공지능 기술")
         self.assertEqual(result, ["인공지능 기술입니다."])
 
-
 if __name__ == "__main__":
     unittest.main()
