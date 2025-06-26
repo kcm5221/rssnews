@@ -14,7 +14,7 @@ if __name__ == "__main__":
     setup_logging()
     out = run()
     articles = json.loads(out.read_text())
-    lang = args.lang or os.getenv("SCRIPT_LANG")
+    lang = args.lang or os.getenv("SCRIPT_LANG", "ko")
     script = build_casual_script(articles, target_lang=lang)
     script = postprocess_script(script)
     out.with_suffix(".txt").write_text(script)
