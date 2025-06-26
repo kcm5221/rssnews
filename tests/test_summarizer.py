@@ -103,22 +103,32 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(DummyTranslator.calls, expected_segments)
         self.assertEqual(result, line1.upper() + "\n" + line2.upper())
 
-    def test_translate_text_partial_failure_keeps_chunks(self):
-        class DummyTranslator:
+    def test_translate_text_partial_failure_falls_back(self):
+        class DummyGT:
             calls = []
 
             def translate(self, text, dest=None):
-                DummyTranslator.calls.append(text)
+                DummyGT.calls.append(text)
                 if text == "bad":
                     raise RuntimeError("boom")
                 return types.SimpleNamespace(text=text.upper())
 
+        class DummyDT:
+            calls = []
+
+            def translate(self, text):
+                DummyDT.calls.append(text)
+                return "DT-" + text
+
         gt_mod = types.ModuleType("googletrans")
-        gt_mod.Translator = DummyTranslator
+        gt_mod.Translator = DummyGT
+        dt_mod = types.ModuleType("deep_translator")
+        dt_mod.GoogleTranslator = lambda source="auto", target="en": DummyDT()
+
         orig_gt = sys.modules.get("googletrans")
         orig_dt = sys.modules.get("deep_translator")
         sys.modules["googletrans"] = gt_mod
-        sys.modules["deep_translator"] = types.ModuleType("deep_translator")
+        sys.modules["deep_translator"] = dt_mod
 
         orig_chunk = summarizer._chunk_text
         summarizer._chunk_text = lambda x: ["good", "bad", "last"]
@@ -136,8 +146,9 @@ class TestSummaries(unittest.TestCase):
             else:
                 del sys.modules["deep_translator"]
 
-        self.assertEqual(DummyTranslator.calls, ["good", "bad", "last"])
-        self.assertEqual(result, "GOODbadLAST")
+        self.assertEqual(DummyGT.calls, ["good", "bad", "last"])
+        self.assertEqual(DummyDT.calls, ["bad"])
+        self.assertEqual(result, "GOODDT-badLAST")
 
     def test_build_topic_script_groups_and_transitions(self):
         arts = [
