@@ -126,6 +126,7 @@ $ cp .env.sample .env
 # 기본 파이프라인 실행
 $ python main.py
 # 위 명령을 실행하면 기사 요약이 저장되고 "articles_*.txt" 대본 파일도 함께 생성됩니다.
+# 대본은 기본적으로 한국어로 생성됩니다.
 
 # 예시 스크립트 실행
 $ python examples/run_pipeline.py
@@ -135,7 +136,7 @@ raw_feeds/
  ┗ articles_20250613_131459.json
 ```
 
-대본을 다른 언어로 출력하고 싶다면 `--lang` 옵션이나 `SCRIPT_LANG` 환경 변수를 사용합니다.
+대본을 다른 언어로 출력하고 싶다면 `--lang` 옵션이나 `SCRIPT_LANG` 환경 변수를 사용합니다. 기본 언어는 `ko`입니다.
 
 ```bash
 $ python main.py --lang en      # 영어로 번역
