@@ -9,3 +9,7 @@ except ImportError:  # ``python-dotenv`` may be optional
 # Load environment variables from a .env file if present. This must happen
 # before other modules import configuration values via ``os.getenv``.
 load_dotenv()
+
+from .block_processor import process_blocks
+
+__all__ = ["process_blocks"]
