@@ -22,6 +22,10 @@ class TestSummaries(unittest.TestCase):
         text = "A. Bbbbbbbb. CCCCCCCC."
         self.assertEqual(simple_summary(text, max_sent=2), "Bbbbbbbb. CCCCCCCC.")
 
+    def test_simple_summary_handles_newlines(self):
+        text = "A.\nBbbbbbbb.\nCCCCCCCC."
+        self.assertEqual(simple_summary(text, max_sent=2), "Bbbbbbbb. CCCCCCCC.")
+
     def test_quick_summarize_short(self):
         t = "Title"
         short = "short text"
