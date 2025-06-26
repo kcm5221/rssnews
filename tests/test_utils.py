@@ -15,7 +15,7 @@ if "bs4" not in sys.modules:
     sys.modules["bs4"] = types.ModuleType("bs4")
 
 from utubenews.pipeline import sort_articles
-from utubenews.text_utils import clean_text
+from utubenews.text_utils import clean_text, merge_text_blocks, split_sentences
 from utubenews.utils import filter_keywords, deduplicate
 
 
@@ -73,6 +73,23 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(titles[0], "Title1")
         self.assertEqual(titles[1], "Title2 ")
         self.assertEqual(titles[2], "Title3")
+
+    def test_merge_text_blocks(self):
+        texts = ["Title\n광고", "Title", "Another news"]
+        titles = ["뉴스1", "뉴스2", "뉴스3"]
+        result = merge_text_blocks(texts, titles)
+        self.assertIn("## 뉴스1", result)
+        self.assertIn("## 뉴스3", result)
+        # "Title" should appear once after cleaning and deduplication
+        self.assertEqual(result.count("Title"), 1)
+
+    def test_split_sentences_adds_period(self):
+        result = split_sentences("Hello world")
+        self.assertEqual(result, ["Hello world."])
+
+    def test_split_sentences_appends_filler_for_hangul(self):
+        result = split_sentences("인공지능 기술")
+        self.assertEqual(result, ["인공지능 기술입니다."])
 
 
 if __name__ == "__main__":

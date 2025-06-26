@@ -9,7 +9,7 @@ if "bs4" not in sys.modules:
     sys.modules["bs4"] = types.ModuleType("bs4")
 
 from utubenews import summarizer
-from utubenews.summarizer import simple_summary, build_casual_script
+from utubenews.summarizer import simple_summary, build_casual_script, summarize_blocks
 from utubenews.article_extractor import quick_summarize
 
 class TestSummaries(unittest.TestCase):
@@ -50,6 +50,13 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(called["text"], expected_raw)
         self.assertEqual(called["lang"], "en")
         self.assertEqual(result, "X")
+
+    def test_summarize_blocks(self):
+        blocks = ["A. Long sentence here.", "Short one. Another longer sentence."]
+        sums = summarize_blocks(blocks, max_sent=1)
+        self.assertEqual(len(sums), 2)
+        self.assertEqual(sums[0], "Long sentence here.")
+        self.assertEqual(sums[1], "Another longer sentence.")
 
     def test_translate_text_splits_large_input(self):
         class DummyTranslator:
