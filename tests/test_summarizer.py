@@ -14,6 +14,7 @@ from utubenews.summarizer import (
     build_casual_script,
     summarize_blocks,
     build_topic_script,
+    postprocess_script,
 )
 from utubenews.article_extractor import quick_summarize
 
@@ -161,6 +162,20 @@ class TestSummaries(unittest.TestCase):
         self.assertIn("▶ 보안", result)
         self.assertIn("다음 소식입니다~", result)
         self.assertTrue(result.strip().endswith("찾아뵐게요!"))
+
+    def test_postprocess_script_sections_and_ending(self):
+        raw = " ".join(f"S{i}." for i in range(1, 21))
+        processed = postprocess_script(raw, max_sent=12)
+        blocks = processed.split("\n\n")
+
+        self.assertTrue(processed.strip().endswith("오늘 뉴스는 여기까지입니다."))
+        self.assertEqual(len(blocks), 4)
+        from utubenews.text_utils import split_sentences
+
+        first_block_sents = split_sentences(blocks[0])
+        second_block_sents = split_sentences(blocks[2])
+        self.assertEqual(len(first_block_sents), 12)
+        self.assertEqual(len(second_block_sents), 8)
 
 if __name__ == "__main__":
     unittest.main()

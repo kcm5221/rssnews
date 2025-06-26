@@ -3,7 +3,7 @@ import os
 import argparse
 
 from utubenews.pipeline import run
-from utubenews.summarizer import build_casual_script
+from utubenews.summarizer import build_casual_script, postprocess_script
 from utubenews.utils import setup_logging
 
 if __name__ == "__main__":
@@ -16,5 +16,6 @@ if __name__ == "__main__":
     articles = json.loads(out.read_text())
     lang = args.lang or os.getenv("SCRIPT_LANG")
     script = build_casual_script(articles, target_lang=lang)
+    script = postprocess_script(script)
     out.with_suffix(".txt").write_text(script)
     print(script)
