@@ -25,3 +25,28 @@ def clean_html_text(html: str, min_len: int = 0) -> str:
             continue
         text.append(p)
     return clean_text("\n".join(text))
+
+
+def merge_text_blocks(texts: list[str], titles: list[str] | None = None) -> str:
+    """Return a single cleaned script from ``texts``.
+
+    Each item in ``texts`` is cleaned using :func:`clean_text`. Duplicate
+    blocks are skipped. When ``titles`` are provided, each cleaned block is
+    prefixed with ``"## {title}"`` using the matching title.
+    Blocks are separated by a blank line.
+    """
+
+    titles = titles or []
+    seen: set[str] = set()
+    out_parts: list[str] = []
+    for idx, raw in enumerate(texts):
+        cleaned = clean_text(raw)
+        if not cleaned or cleaned in seen:
+            continue
+        seen.add(cleaned)
+        if idx < len(titles):
+            block = f"## {titles[idx].strip()}\n{cleaned}"
+        else:
+            block = cleaned
+        out_parts.append(block)
+    return "\n\n".join(out_parts)
