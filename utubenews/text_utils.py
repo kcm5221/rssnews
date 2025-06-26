@@ -50,3 +50,31 @@ def merge_text_blocks(texts: list[str], titles: list[str] | None = None) -> str:
             block = cleaned
         out_parts.append(block)
     return "\n\n".join(out_parts)
+
+def split_sentences(text: str, filler: str = "입니다.") -> list[str]:
+    """Return cleaned short sentences from ``text``.
+
+    The input is normalized using :func:`clean_text` and then split on
+    punctuation. Fragments that lack terminal punctuation are finalized with a
+    period. When a fragment ends with a Hangul character, ``filler`` is
+    appended to clarify the predicate.
+    """
+
+    cleaned = clean_text(text)
+    if not cleaned:
+        return []
+
+    raw_sents = re.split(r"(?<=[.!?])\s+|\n+", cleaned)
+    sentences: list[str] = []
+    for frag in raw_sents:
+        frag = frag.strip()
+        if not frag:
+            continue
+        if frag.endswith(('.', '!', '?')):
+            sentences.append(frag)
+            continue
+        if re.search(r"[\uAC00-\uD7A3]$", frag):
+            sentences.append(frag + filler)
+        else:
+            sentences.append(frag + '.')
+    return sentences
