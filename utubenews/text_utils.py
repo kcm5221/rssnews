@@ -6,12 +6,17 @@ _AD_PAT = re.compile(
     r"advert|sponsor|subscribe|table of contents|\[hide\]|광고|후원|목차",
     re.I,
 )
+_TRANS_WARN_PAT = re.compile(
+    r"\(?\s*It is assumed that there may be errors in the English translation\.\)?",
+    re.I,
+)
 
 def clean_text(text: str) -> str:
     """Normalize whitespace and drop ad-like lines."""
     parts: list[str] = []
     for line in (text or "").splitlines():
         line = line.strip()
+        line = _TRANS_WARN_PAT.sub("", line)
         if not line or _AD_PAT.search(line):
             continue
         parts.append(line)
