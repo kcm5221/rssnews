@@ -49,48 +49,52 @@ def translate_text(text: str, target_lang: str) -> str:
 
     parts = _chunk_text(text)
 
-    try:
+    gt = None
+    dt = None
+    try:  # pragma: no cover - optional dependency
         from googletrans import Translator  # type: ignore
 
-        translator = Translator()
-        translated_parts = []
-        for idx, part in enumerate(parts):
-            try:
-                translated_parts.append(
-                    translator.translate(part, dest=target_lang).text
-                )
-            except Exception as exc:  # pragma: no cover - log only
-                _LOG.warning(
-                    "googletrans failed for chunk %d: %s", idx, exc
-                )
-                translated_parts.append(part)
-
-        return "".join(translated_parts)
+        gt = Translator()
     except Exception as exc:
-        _LOG.warning(
-            "googletrans failed to translate to %s: %s", target_lang, exc
-        )
+        _LOG.warning("googletrans unavailable: %s", exc)
 
-    try:
-        from deep_translator import GoogleTranslator  # type: ignore
+    if gt is None:
+        try:  # pragma: no cover - optional dependency
+            from deep_translator import GoogleTranslator  # type: ignore
 
-        translator = GoogleTranslator(source="auto", target=target_lang)
-        translated_parts = []
-        for idx, part in enumerate(parts):
+            dt = GoogleTranslator(source="auto", target=target_lang)
+        except Exception as exc:
+            _LOG.warning(
+                "deep_translator failed to translate to %s: %s", target_lang, exc
+            )
+            return text
+
+    translated_parts = []
+    for idx, part in enumerate(parts):
+        translated = None
+        if gt is not None:
             try:
-                translated_parts.append(translator.translate(part))
+                translated = gt.translate(part, dest=target_lang).text
             except Exception as exc:  # pragma: no cover - log only
-                _LOG.warning(
-                    "deep_translator failed for chunk %d: %s", idx, exc
-                )
-                translated_parts.append(part)
+                _LOG.warning("googletrans failed for chunk %d: %s", idx, exc)
+        if translated is None and dt is None:
+            try:  # pragma: no cover - optional dependency
+                from deep_translator import GoogleTranslator  # type: ignore
 
-        return "".join(translated_parts)
-    except Exception as exc:
-        _LOG.warning(
-            "deep_translator failed to translate to %s: %s", target_lang, exc
-        )
-        return text
+                dt = GoogleTranslator(source="auto", target=target_lang)
+            except Exception as exc:
+                _LOG.warning(
+                    "deep_translator failed to translate to %s: %s", target_lang, exc
+                )
+        if translated is None and dt is not None:
+            try:
+                translated = dt.translate(part)
+            except Exception as exc:  # pragma: no cover - log only
+                _LOG.warning("deep_translator failed for chunk %d: %s", idx, exc)
+
+        translated_parts.append(translated if translated is not None else part)
+
+    return "".join(translated_parts)
 
 BULLET = "\u2022"
 
