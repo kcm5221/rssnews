@@ -28,6 +28,10 @@ class TestUtils(unittest.TestCase):
         sample = "Intro\nTable of Contents\n[hide]\n목차\nContent"
         self.assertEqual(clean_text(sample), "Intro Content")
 
+    def test_clean_text_strips_translation_warning(self):
+        raw = "(It is assumed that there may be errors in the English translation.) Actual content"
+        self.assertEqual(clean_text(raw), "Actual content")
+
     def test_sort_articles(self):
         arts = [
             {"title": "old", "pubDateISO": "2024-01-01T00:00:00"},
