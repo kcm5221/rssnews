@@ -152,3 +152,21 @@ def build_casual_script(articles: list[dict], target_lang: Optional[str] = None)
     if target_lang:
         return translate_text(script, target_lang)
     return script
+
+
+def summarize_blocks(blocks: List[str], max_sent: int = 1) -> List[str]:
+    """Return a short summary for each text block in ``blocks``.
+
+    Each block is cleaned using :func:`text_utils.clean_text` and summarized
+    with :func:`simple_summary`. Empty blocks after cleaning are skipped.
+    """
+
+    from .text_utils import clean_text
+
+    summaries: List[str] = []
+    for raw in blocks:
+        cleaned = clean_text(raw)
+        if not cleaned:
+            continue
+        summaries.append(simple_summary(cleaned, max_sent=max_sent))
+    return summaries
