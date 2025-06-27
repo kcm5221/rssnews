@@ -9,6 +9,9 @@ import logging
 
 _LOG = logging.getLogger(__name__)
 
+# cache for the transformers summarization pipeline
+_PIPELINE = None
+
 # maximum characters allowed in a single translation request
 MAX_TRANSLATE_CHARS = 5000
 
@@ -115,11 +118,13 @@ def llm_summarize(text: str, max_tokens: int = 60) -> str:
     falls back to :func:`quick_summarize` for a simple heuristic summary.
     """
 
+    global _PIPELINE
     try:  # pragma: no cover - optional heavy dependency
         from transformers import pipeline  # type: ignore
 
-        summarizer = pipeline("summarization")
-        result = summarizer(text, max_length=max_tokens, do_sample=False)
+        if _PIPELINE is None:
+            _PIPELINE = pipeline("summarization")
+        result = _PIPELINE(text, max_length=max_tokens, do_sample=False)
         if isinstance(result, list):
             data = result[0]
         else:
