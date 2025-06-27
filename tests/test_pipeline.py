@@ -119,7 +119,7 @@ class TestEnrichArticles(unittest.TestCase):
             pipeline.clean_text = orig["clean"]
             pipeline.llm_summarize = orig["llm"]
 
-        self.assertEqual(out[0]["script"], "SCRIPT-SUM")
+        self.assertEqual(out[0]["script"], "SCRIPT-BODY-L1")
         self.assertEqual(out[1]["script"], "SCRIPT-BODY-L2")
         self.assertEqual(out[0]["body"], "BODY-L1")
         self.assertEqual(out[1]["body"], "BODY-L2")

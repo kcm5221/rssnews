@@ -26,7 +26,7 @@ def enrich_articles(articles: list[dict]) -> list[dict]:
         body = extract_main_text(art["link"])
         body = clean_text(body)
         art["body"] = body
-        summary_src = art.get("summary") or body or art["title"]
+        summary_src = body or art.get("summary") or art["title"]
         summary_src = clean_text(summary_src)
         art["script"] = llm_summarize(summary_src)
     return articles
