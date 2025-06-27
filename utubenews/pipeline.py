@@ -24,6 +24,7 @@ def enrich_articles(articles: list[dict]) -> list[dict]:
     for art in articles:
         body = extract_main_text(art["link"])
         body = clean_text(body)
+        art["body"] = body
         summary_src = art.get("summary") or body or art["title"]
         summary_src = clean_text(summary_src)
         art["script"] = quick_summarize(art["title"], summary_src)

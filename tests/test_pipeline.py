@@ -121,6 +121,8 @@ class TestEnrichArticles(unittest.TestCase):
 
         self.assertEqual(out[0]["script"], "SCRIPT-SUM")
         self.assertEqual(out[1]["script"], "SCRIPT-BODY-L2")
+        self.assertEqual(out[0]["body"], "BODY-L1")
+        self.assertEqual(out[1]["body"], "BODY-L2")
 
 class TestRun(unittest.TestCase):
     def test_run_calls_steps_and_returns_path(self):
