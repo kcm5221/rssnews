@@ -160,6 +160,8 @@ $ pip install googletrans==4.0.0-rc1 deep_translator>=1.11
 `pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`,
 `enrich_articles()`, `sort_articles()`, `save_articles()` 함수로 나뉘어 있어
 원하는 단계만 독립적으로 호출할 수 있습니다.
+`enrich_articles()` 단계에서는 기사 본문을 `"body"` 필드에 저장하고
+요약문은 기존 `"script"` 필드에 담깁니다.
 
 ### 브라우저 스크립트 오류 확인
 
