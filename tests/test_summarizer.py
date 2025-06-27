@@ -15,6 +15,7 @@ from utubenews.summarizer import (
     summarize_blocks,
     build_topic_script,
     postprocess_script,
+    llm_summarize,
 )
 from utubenews.article_extractor import quick_summarize
 
@@ -31,6 +32,65 @@ class TestSummaries(unittest.TestCase):
         t = "Title"
         short = "short text"
         self.assertTrue(quick_summarize(t, short).startswith(short))
+
+    def test_llm_summarize_uses_transformers_pipeline(self):
+        calls = {}
+
+        def fake_summary(text, max_length=60, do_sample=False):
+            calls["text"] = text
+            calls["max"] = max_length
+            return [{"summary_text": "LLM"}]
+
+        fake_mod = types.ModuleType("transformers")
+
+        def fake_pipe(name):
+            self.assertEqual(name, "summarization")
+            return fake_summary
+
+        fake_mod.pipeline = fake_pipe
+
+        orig_trans = sys.modules.get("transformers")
+        sys.modules["transformers"] = fake_mod
+
+        import utubenews.article_extractor as ae
+        orig_qs = ae.quick_summarize
+        ae.quick_summarize = lambda *_a, **_k: "BAD"
+
+        try:
+            result = llm_summarize("source text", max_tokens=10)
+        finally:
+            if orig_trans is not None:
+                sys.modules["transformers"] = orig_trans
+            else:
+                del sys.modules["transformers"]
+            ae.quick_summarize = orig_qs
+
+        self.assertEqual(result, "LLM")
+        self.assertEqual(calls, {"text": "source text", "max": 10})
+
+    def test_llm_summarize_falls_back_without_transformers(self):
+        import utubenews.article_extractor as ae
+        called = {}
+
+        def fake_qs(title, text, max_sent=3):
+            called["text"] = text
+            return "FB"
+
+        orig_qs = ae.quick_summarize
+        ae.quick_summarize = fake_qs
+
+        orig_trans = sys.modules.get("transformers")
+        if "transformers" in sys.modules:
+            del sys.modules["transformers"]
+        try:
+            result = llm_summarize("text here")
+        finally:
+            if orig_trans is not None:
+                sys.modules["transformers"] = orig_trans
+            ae.quick_summarize = orig_qs
+
+        self.assertEqual(result, "FB")
+        self.assertEqual(called["text"], "text here")
 
     def test_build_casual_script(self):
         arts = [{"script": "A. B. C."}, {"script": "D! E. F. G."}]

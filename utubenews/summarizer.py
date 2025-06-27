@@ -107,6 +107,37 @@ def simple_summary(text: str, max_sent: int = 3) -> str:
     return " ".join(sentences)
 
 
+def llm_summarize(text: str, max_tokens: int = 60) -> str:
+    """Summarize ``text`` using a local language model if available.
+
+    The function attempts to load :func:`transformers.pipeline` with the
+    ``"summarization"`` task. If the library or model is unavailable, it
+    falls back to :func:`quick_summarize` for a simple heuristic summary.
+    """
+
+    try:  # pragma: no cover - optional heavy dependency
+        from transformers import pipeline  # type: ignore
+
+        summarizer = pipeline("summarization")
+        result = summarizer(text, max_length=max_tokens, do_sample=False)
+        if isinstance(result, list):
+            data = result[0]
+        else:
+            data = result
+        if isinstance(data, dict):
+            out = data.get("summary_text") or data.get("generated_text")
+        else:
+            out = str(data)
+        if out:
+            return out.strip()
+    except Exception as exc:
+        _LOG.warning("llm_summarize failed: %s", exc)
+
+    from .article_extractor import quick_summarize
+
+    return quick_summarize("", text)
+
+
 def build_script(title: str, body: str, source: str, license: str) -> str:
     """Return a short markdown script summarizing the article."""
 
