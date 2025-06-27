@@ -12,8 +12,8 @@ _LOG = logging.getLogger(__name__)
 # cache for the transformers summarization pipeline
 _PIPELINE = None
 
-# rough safety limit for model input tokens
-MAX_LLM_INPUT_TOKENS = 1000
+# safety limit for model input tokens (DistilBART is 1024)
+MAX_LLM_INPUT_TOKENS = 1024
 
 # maximum characters allowed in a single translation request
 MAX_TRANSLATE_CHARS = 5000
@@ -129,14 +129,34 @@ def llm_summarize(text: str, max_tokens: int = 180) -> str:
         from transformers import pipeline  # type: ignore
 
         if _PIPELINE is None:
-            _PIPELINE = pipeline("summarization")
+            try:
+                _PIPELINE = pipeline(
+                    "summarization",
+                    model="sshleifer/distilbart-cnn-12-6",
+                    revision="a4f8f3e",
+                )
+            except TypeError:
+                # older or stub pipelines may not accept these kwargs
+                _PIPELINE = pipeline("summarization")
 
-        words = text.split()
-        if len(words) > MAX_LLM_INPUT_TOKENS:
-            text = " ".join(words[:MAX_LLM_INPUT_TOKENS])
+        if hasattr(_PIPELINE, "tokenizer"):
+            tokenizer = _PIPELINE.tokenizer
+            max_in = getattr(tokenizer, "model_max_length", MAX_LLM_INPUT_TOKENS)
+            input_ids = tokenizer.encode(text, truncation=False)
+            if len(input_ids) > max_in:
+                input_ids = input_ids[:max_in]
+                text = tokenizer.decode(input_ids, skip_special_tokens=True)
+        else:
+            words = text.split()
+            if len(words) > MAX_LLM_INPUT_TOKENS:
+                text = " ".join(words[:MAX_LLM_INPUT_TOKENS])
 
         max_length = min(max_tokens, len(text.split()) + 5)
-        result = _PIPELINE(text, max_length=max_length, do_sample=False)
+        result = _PIPELINE(
+            text,
+            max_length=max_length,
+            do_sample=False,
+        )
         if isinstance(result, list):
             data = result[0]
         else:
