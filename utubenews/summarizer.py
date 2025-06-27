@@ -124,7 +124,9 @@ def llm_summarize(text: str, max_tokens: int = 60) -> str:
 
         if _PIPELINE is None:
             _PIPELINE = pipeline("summarization")
-        result = _PIPELINE(text, max_length=max_tokens, do_sample=False)
+
+        max_length = min(max_tokens, len(text.split()) + 5)
+        result = _PIPELINE(text, max_length=max_length, do_sample=False)
         if isinstance(result, list):
             data = result[0]
         else:

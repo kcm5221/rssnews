@@ -68,7 +68,7 @@ class TestSummaries(unittest.TestCase):
             summarizer._PIPELINE = None
 
         self.assertEqual(result, "LLM")
-        self.assertEqual(calls, {"text": "source text", "max": 10})
+        self.assertEqual(calls, {"text": "source text", "max": 7})
 
     def test_llm_summarize_falls_back_without_transformers(self):
         summarizer._PIPELINE = None
@@ -131,6 +131,43 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(second, "OUT-B")
         self.assertEqual(calls["pipe"], 1)
         self.assertEqual(calls["texts"], ["A", "B"])
+
+    def test_llm_summarize_short_input_no_warning(self):
+        summarizer._PIPELINE = None
+
+        def fake_summary(text, max_length=60, do_sample=False):
+            if max_length > len(text.split()) + 5:
+                import warnings
+
+                warnings.warn("too long", UserWarning)
+            return [{"summary_text": "OK"}]
+
+        fake_mod = types.ModuleType("transformers")
+
+        def fake_pipe(name):
+            self.assertEqual(name, "summarization")
+            return fake_summary
+
+        fake_mod.pipeline = fake_pipe
+
+        orig = sys.modules.get("transformers")
+        sys.modules["transformers"] = fake_mod
+
+        import warnings as _warnings
+
+        try:
+            with _warnings.catch_warnings(record=True) as w:
+                _warnings.simplefilter("always")
+                result = llm_summarize("tiny text", max_tokens=20)
+        finally:
+            if orig is not None:
+                sys.modules["transformers"] = orig
+            else:
+                del sys.modules["transformers"]
+            summarizer._PIPELINE = None
+
+        self.assertEqual(result, "OK")
+        self.assertEqual(len(w), 0)
 
     def test_build_casual_script(self):
         arts = [{"script": "A. B. C."}, {"script": "D! E. F. G."}]
