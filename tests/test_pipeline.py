@@ -101,23 +101,23 @@ class TestEnrichArticles(unittest.TestCase):
         def fake_clean(text):
             return text
 
-        def fake_sum(title, src):
+        def fake_sum(src):
             return f"SCRIPT-{src}"
 
         orig = {
             "ext": pipeline.extract_main_text,
             "clean": pipeline.clean_text,
-            "qs": pipeline.quick_summarize,
+            "llm": pipeline.llm_summarize,
         }
         pipeline.extract_main_text = fake_extract
         pipeline.clean_text = fake_clean
-        pipeline.quick_summarize = fake_sum
+        pipeline.llm_summarize = fake_sum
         try:
             out = pipeline.enrich_articles(arts)
         finally:
             pipeline.extract_main_text = orig["ext"]
             pipeline.clean_text = orig["clean"]
-            pipeline.quick_summarize = orig["qs"]
+            pipeline.llm_summarize = orig["llm"]
 
         self.assertEqual(out[0]["script"], "SCRIPT-SUM")
         self.assertEqual(out[1]["script"], "SCRIPT-BODY-L2")

@@ -5,7 +5,8 @@ from __future__ import annotations
 import json, logging, datetime as dt
 from pathlib import Path
 from .collector import collect_all
-from .article_extractor import extract_main_text, quick_summarize
+from .article_extractor import extract_main_text
+from .summarizer import llm_summarize
 from .text_utils import clean_text
 from .utils import deduplicate
 
@@ -27,7 +28,7 @@ def enrich_articles(articles: list[dict]) -> list[dict]:
         art["body"] = body
         summary_src = art.get("summary") or body or art["title"]
         summary_src = clean_text(summary_src)
-        art["script"] = quick_summarize(art["title"], summary_src)
+        art["script"] = llm_summarize(summary_src)
     return articles
 
 
