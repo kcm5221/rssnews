@@ -34,6 +34,7 @@ class TestSummaries(unittest.TestCase):
         self.assertTrue(quick_summarize(t, short).startswith(short))
 
     def test_llm_summarize_uses_transformers_pipeline(self):
+        summarizer._PIPELINE = None
         calls = {}
 
         def fake_summary(text, max_length=60, do_sample=False):
@@ -64,11 +65,13 @@ class TestSummaries(unittest.TestCase):
             else:
                 del sys.modules["transformers"]
             ae.quick_summarize = orig_qs
+            summarizer._PIPELINE = None
 
         self.assertEqual(result, "LLM")
         self.assertEqual(calls, {"text": "source text", "max": 10})
 
     def test_llm_summarize_falls_back_without_transformers(self):
+        summarizer._PIPELINE = None
         import utubenews.article_extractor as ae
         called = {}
 
@@ -88,9 +91,46 @@ class TestSummaries(unittest.TestCase):
             if orig_trans is not None:
                 sys.modules["transformers"] = orig_trans
             ae.quick_summarize = orig_qs
+            summarizer._PIPELINE = None
 
         self.assertEqual(result, "FB")
         self.assertEqual(called["text"], "text here")
+
+    def test_llm_summarize_reuses_pipeline(self):
+        summarizer._PIPELINE = None
+
+        calls = {"pipe": 0, "texts": []}
+
+        def fake_summary(text, max_length=60, do_sample=False):
+            calls["texts"].append(text)
+            return [{"summary_text": f"OUT-{text}"}]
+
+        fake_mod = types.ModuleType("transformers")
+
+        def fake_pipe(name):
+            self.assertEqual(name, "summarization")
+            calls["pipe"] += 1
+            return fake_summary
+
+        fake_mod.pipeline = fake_pipe
+
+        orig_mod = sys.modules.get("transformers")
+        sys.modules["transformers"] = fake_mod
+
+        try:
+            first = llm_summarize("A", max_tokens=5)
+            second = llm_summarize("B", max_tokens=6)
+        finally:
+            if orig_mod is not None:
+                sys.modules["transformers"] = orig_mod
+            else:
+                del sys.modules["transformers"]
+            summarizer._PIPELINE = None
+
+        self.assertEqual(first, "OUT-A")
+        self.assertEqual(second, "OUT-B")
+        self.assertEqual(calls["pipe"], 1)
+        self.assertEqual(calls["texts"], ["A", "B"])
 
     def test_build_casual_script(self):
         arts = [{"script": "A. B. C."}, {"script": "D! E. F. G."}]
