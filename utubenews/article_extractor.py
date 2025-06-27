@@ -9,6 +9,19 @@ HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 _LOG = logging.getLogger(__name__)
 
+
+def extract_with_newspaper(url: str) -> str:
+    """Return article body text using ``newspaper`` library."""
+    try:
+        from newspaper import Article
+    except Exception as e:  # ImportError or any failure
+        raise RuntimeError("newspaper unavailable") from e
+
+    art = Article(url)
+    art.download()
+    art.parse()
+    return art.text or ""
+
 def _regex_extract(html: str, min_len: int) -> str:
     """Fallback text extraction using regex when BeautifulSoup is unavailable."""
     if not html:
@@ -62,6 +75,14 @@ def _extract_from_html(html: str, min_len: int) -> str:
 
 def extract_main_text(url: str, min_len: int = 10) -> str:
     """Return cleaned main body text from the article page."""
+    try:
+        text = extract_with_newspaper(url)
+        cleaned = clean_text(text)
+        if cleaned:
+            return cleaned
+    except Exception as e:
+        _LOG.debug("newspaper failed: %s", e)
+
     try:
         response = requests.get(url, timeout=10, headers=HEADERS)
         response.raise_for_status()

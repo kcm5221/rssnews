@@ -26,13 +26,21 @@ sys.modules["requests"] = dummy_requests
 if "bs4" not in sys.modules:
     sys.modules["bs4"] = types.ModuleType("bs4")
 
+# provide stub newspaper module used by extract_with_newspaper
+dummy_newspaper = types.ModuleType("newspaper")
+sys.modules["newspaper"] = dummy_newspaper
+
 from utubenews.article_extractor import extract_main_text
 
 class TestExtractMainText(unittest.TestCase):
     def test_returns_empty_on_request_error(self):
+        if hasattr(dummy_newspaper, "Article"):
+            del dummy_newspaper.Article
         self.assertEqual(extract_main_text("http://x"), "")
 
     def test_short_lines_not_dropped(self):
+        if hasattr(dummy_newspaper, "Article"):
+            del dummy_newspaper.Article
         html = "<html><article><p>Short line.</p><p>Another one.</p></article></html>"
 
         class OkResponse:
@@ -54,6 +62,54 @@ class TestExtractMainText(unittest.TestCase):
 
         self.assertIn("Short line.", text)
         self.assertIn("Another one.", text)
+
+    def test_newspaper_success_used_first(self):
+        class GoodArticle:
+            def __init__(self, url):
+                self.url = url
+            def download(self):
+                pass
+            def parse(self):
+                self.text = "NP text"
+
+        dummy_newspaper.Article = GoodArticle
+        try:
+            text = extract_main_text("http://np")
+        finally:
+            del dummy_newspaper.Article
+        self.assertEqual(text, "NP text")
+
+    def test_newspaper_failure_falls_back(self):
+        class BadArticle:
+            def __init__(self, url):
+                pass
+            def download(self):
+                raise RuntimeError("boom")
+            def parse(self):
+                pass
+
+        dummy_newspaper.Article = BadArticle
+
+        html = "<html><article><p>Fallback.</p></article></html>"
+
+        class OkResponse:
+            def raise_for_status(self):
+                pass
+            @property
+            def text(self):
+                return html
+
+        def ok_get(*a, **k):
+            return OkResponse()
+
+        dummy_requests.get = ok_get
+        try:
+            text = extract_main_text("http://fb")
+        finally:
+            dummy_requests.get = dummy_get
+            del dummy_newspaper.Article
+
+        self.assertEqual(text, "Fallback.")
 
 if __name__ == "__main__":
     unittest.main()
