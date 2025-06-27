@@ -110,12 +110,15 @@ def simple_summary(text: str, max_sent: int = 3) -> str:
     return " ".join(sentences)
 
 
-def llm_summarize(text: str, max_tokens: int = 60) -> str:
+def llm_summarize(text: str, max_tokens: int = 180) -> str:
     """Summarize ``text`` using a local language model if available.
 
     The function attempts to load :func:`transformers.pipeline` with the
     ``"summarization"`` task. If the library or model is unavailable, it
-    falls back to :func:`quick_summarize` for a simple heuristic summary.
+    falls back to :func:`quick_summarize` for a simple heuristic summary. The
+    default ``max_tokens`` value is large enough to keep most of the original
+    content so the result reads more like a cleaned version than a short
+    abstract.
     """
 
     global _PIPELINE

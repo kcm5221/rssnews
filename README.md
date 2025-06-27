@@ -161,7 +161,10 @@ $ pip install googletrans==4.0.0-rc1 deep_translator>=1.11
 `enrich_articles()`, `sort_articles()`, `save_articles()` 함수로 나뉘어 있어
 원하는 단계만 독립적으로 호출할 수 있습니다.
 `enrich_articles()` 단계에서는 기사 본문을 `"body"` 필드에 저장하고
-요약문은 기존 `"script"` 필드에 담깁니다.
+요약문은 기존 `"script"` 필드에 담깁니다. 요약은 기본적으로 약 180 토큰
+까지 생성하여 원문을 간략히 정돈한 수준의 결과를 얻을 수 있습니다. 더
+길거나 짧은 요약을 원한다면 `llm_summarize(text, max_tokens=...)` 호출 시
+원하는 토큰 수를 지정하면 됩니다.
 
 ### 브라우저 스크립트 오류 확인
 
