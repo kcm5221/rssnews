@@ -12,6 +12,9 @@ _LOG = logging.getLogger(__name__)
 # cache for the transformers summarization pipeline
 _PIPELINE = None
 
+# rough safety limit for model input tokens
+MAX_LLM_INPUT_TOKENS = 1000
+
 # maximum characters allowed in a single translation request
 MAX_TRANSLATE_CHARS = 5000
 
@@ -127,6 +130,10 @@ def llm_summarize(text: str, max_tokens: int = 180) -> str:
 
         if _PIPELINE is None:
             _PIPELINE = pipeline("summarization")
+
+        words = text.split()
+        if len(words) > MAX_LLM_INPUT_TOKENS:
+            text = " ".join(words[:MAX_LLM_INPUT_TOKENS])
 
         max_length = min(max_tokens, len(text.split()) + 5)
         result = _PIPELINE(text, max_length=max_length, do_sample=False)
