@@ -156,6 +156,7 @@ def llm_summarize(text: str, max_tokens: int = 180) -> str:
             text,
             max_length=max_length,
             do_sample=False,
+            truncation=True,
         )
         if isinstance(result, list):
             data = result[0]

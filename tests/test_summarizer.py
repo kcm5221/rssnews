@@ -37,7 +37,7 @@ class TestSummaries(unittest.TestCase):
         summarizer._PIPELINE = None
         calls = {}
 
-        def fake_summary(text, max_length=60, do_sample=False):
+        def fake_summary(text, max_length=60, do_sample=False, **_k):
             calls["text"] = text
             calls["max"] = max_length
             return [{"summary_text": "LLM"}]
@@ -101,7 +101,7 @@ class TestSummaries(unittest.TestCase):
 
         calls = {"pipe": 0, "texts": []}
 
-        def fake_summary(text, max_length=60, do_sample=False):
+        def fake_summary(text, max_length=60, do_sample=False, **_k):
             calls["texts"].append(text)
             return [{"summary_text": f"OUT-{text}"}]
 
@@ -135,7 +135,7 @@ class TestSummaries(unittest.TestCase):
     def test_llm_summarize_short_input_no_warning(self):
         summarizer._PIPELINE = None
 
-        def fake_summary(text, max_length=60, do_sample=False):
+        def fake_summary(text, max_length=60, do_sample=False, **_k):
             if max_length > len(text.split()) + 5:
                 import warnings
 
@@ -168,6 +168,51 @@ class TestSummaries(unittest.TestCase):
 
         self.assertEqual(result, "OK")
         self.assertEqual(len(w), 0)
+
+    def test_llm_summarize_truncates_to_model_length_and_passes_flag(self):
+        summarizer._PIPELINE = None
+
+        class DummyTokenizer:
+            model_max_length = 3
+
+            def encode(self, text, truncation=False):
+                return text.split()
+
+            def decode(self, tokens, skip_special_tokens=True):
+                return " ".join(tokens)
+
+        calls = {}
+
+        def fake_summary(text, max_length=60, do_sample=False, truncation=False):
+            calls["text"] = text
+            calls["trunc"] = truncation
+            return [{"summary_text": "OK"}]
+
+        fake_summary.tokenizer = DummyTokenizer()
+
+        fake_mod = types.ModuleType("transformers")
+        fake_mod.pipeline = lambda name: fake_summary
+
+        orig = sys.modules.get("transformers")
+        sys.modules["transformers"] = fake_mod
+
+        import utubenews.article_extractor as ae
+        orig_qs = ae.quick_summarize
+        ae.quick_summarize = lambda *_a, **_k: "BAD"
+
+        try:
+            result = llm_summarize("w1 w2 w3 w4 w5")
+        finally:
+            if orig is not None:
+                sys.modules["transformers"] = orig
+            else:
+                del sys.modules["transformers"]
+            ae.quick_summarize = orig_qs
+            summarizer._PIPELINE = None
+
+        self.assertEqual(result, "OK")
+        self.assertEqual(calls["text"], "w1 w2 w3")
+        self.assertTrue(calls["trunc"])
 
     def test_build_casual_script(self):
         arts = [{"script": "A. B. C."}, {"script": "D! E. F. G."}]
