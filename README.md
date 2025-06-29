@@ -136,7 +136,7 @@ raw_feeds/
  ┗ articles_20250613_131459.json
 ```
 
-대본을 다른 언어로 출력하고 싶다면 `--lang` 옵션이나 `SCRIPT_LANG` 환경 변수를 사용합니다. 기본 언어는 `ko`입니다.
+대본을 다른 언어로 출력하고 싶다면 `--lang` 옵션이나 `SCRIPT_LANG` 환경 변수를 사용합니다. 기본 언어는 `ko`입니다. `ko`를 지정하면 번역 과정은 생략됩니다.
 
 ```bash
 $ python main.py --lang en      # 영어로 번역
