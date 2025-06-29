@@ -11,10 +11,14 @@ import requests
 
 
 NAVER_URL = "https://openapi.naver.com/v1/search/news.json"
-HEADERS = {
-    "X-Naver-Client-Id":     os.getenv("NAVER_CLIENT_ID", ""),
-    "X-Naver-Client-Secret": os.getenv("NAVER_CLIENT_SECRET", ""),
-}
+
+def _get_headers() -> dict:
+    """Return authentication headers constructed from environment variables."""
+
+    return {
+        "X-Naver-Client-Id":     os.getenv("NAVER_CLIENT_ID", ""),
+        "X-Naver-Client-Secret": os.getenv("NAVER_CLIENT_SECRET", ""),
+    }
 
 _DISPLAY = 100
 _TAG = re.compile(r"<[^>]+>")
@@ -34,6 +38,11 @@ def fetch_naver_articles(
     query: str, topic: str, days: int = 1, max_pages: int = 10
 ) -> list[dict]:
     """Collect recent articles matching ``query`` and tag them with ``topic``."""
+    headers = _get_headers()
+    if not headers.get("X-Naver-Client-Id") or not headers.get("X-Naver-Client-Secret"):
+        _LOG.warning("NAVER_CLIENT_ID/SECRET 환경 변수가 없어 네이버 수집을 건너뜁니다")
+        return []
+
     now = dt.datetime.now()
     cutoff = now - dt.timedelta(days=days)
     articles: list[dict] = []
@@ -43,7 +52,7 @@ def fetch_naver_articles(
         params = {"query": query, "display": _DISPLAY, "start": start, "sort": "date"}
         try:
             r = requests.get(
-                NAVER_URL, headers=HEADERS, params=params, timeout=10
+                NAVER_URL, headers=headers, params=params, timeout=10
             )
             r.raise_for_status()
             items = r.json().get("items", [])
