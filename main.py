@@ -23,9 +23,9 @@ if __name__ == "__main__":
     lang = args.lang or os.getenv("SCRIPT_LANG", "ko")
     # Don't run translation step when script language is already Korean
     if lang == "ko":
-        script = build_casual_script(articles)
+        script = build_casual_script(articles, add_closing=False)
     else:
-        script = build_casual_script(articles, target_lang=lang)
+        script = build_casual_script(articles, target_lang=lang, add_closing=False)
     script = postprocess_script(script)
     out.with_suffix(".txt").write_text(script)
     print(script)

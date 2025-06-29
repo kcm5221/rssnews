@@ -225,13 +225,17 @@ def build_script(title: str, body: str, source: str, license: str) -> str:
     ).strip()
 
 
-def build_casual_script(articles: list[dict], target_lang: Optional[str] = None) -> str:
+def build_casual_script(
+    articles: list[dict],
+    target_lang: Optional[str] = None,
+    add_closing: bool = True,
+) -> str:
     """Return a casual one-person news script from ``articles``.
 
     Each article dict is expected to contain a ``"script"`` field holding a
     short summary. The first sentence becomes a hook line and up to the next
     two sentences are used as brief details. Articles are separated by a blank
-    line and the script ends with a friendly closing line.
+    line. When ``add_closing`` is ``True`` a friendly closing line is appended.
     """
 
     parts: list[str] = []
@@ -250,7 +254,8 @@ def build_casual_script(articles: list[dict], target_lang: Optional[str] = None)
             part = hook
         parts.append(part)
 
-    parts.append("오늘 뉴스 여기까지! 좋은 하루 보내세요 😊")
+    if add_closing:
+        parts.append("오늘 뉴스 여기까지! 좋은 하루 보내세요 😊")
     script = "\n\n".join(parts)
     if target_lang:
         script = translate_text(script, target_lang)
