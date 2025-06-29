@@ -119,10 +119,88 @@ class TestEnrichArticles(unittest.TestCase):
             pipeline.clean_text = orig["clean"]
             pipeline.llm_summarize = orig["llm"]
 
-        self.assertEqual(out[0]["script"], "SCRIPT-BODY-L1")
-        self.assertEqual(out[1]["script"], "SCRIPT-BODY-L2")
+        self.assertEqual(out[0]["script"], "SCRIPT-BODY-L1...")
+        self.assertEqual(out[1]["script"], "SCRIPT-BODY-L2...")
         self.assertEqual(out[0]["body"], "BODY-L1")
         self.assertEqual(out[1]["body"], "BODY-L2")
+
+    def test_enrich_articles_warns_on_short_script(self):
+        art = {"title": "T", "link": "L"}
+
+        def fake_extract(link):
+            return ""
+
+        def fake_clean(text):
+            return text
+
+        def fake_sum(src):
+            return "short"
+
+        orig = {
+            "ext": pipeline.extract_main_text,
+            "clean": pipeline.clean_text,
+            "llm": pipeline.llm_summarize,
+        }
+        pipeline.extract_main_text = fake_extract
+        pipeline.clean_text = fake_clean
+        pipeline.llm_summarize = fake_sum
+        try:
+            with self.assertLogs(pipeline._LOG, level="WARNING") as log:
+                out = pipeline.enrich_articles([art])
+        finally:
+            pipeline.extract_main_text = orig["ext"]
+            pipeline.clean_text = orig["clean"]
+            pipeline.llm_summarize = orig["llm"]
+
+        self.assertEqual(out[0]["script"], "short...")
+        self.assertTrue(any("Suspicious script" in m for m in log.output))
+
+        import tempfile, json
+        with tempfile.TemporaryDirectory() as td:
+            path = pipeline.save_articles(out, Path(td))
+            with open(path) as f:
+                loaded = json.load(f)
+
+        self.assertEqual(loaded[0]["script"], "short...")
+
+    def test_enrich_articles_warns_on_unbalanced_quote(self):
+        art = {"title": "T", "link": "L"}
+
+        def fake_extract(link):
+            return ""
+
+        def fake_clean(text):
+            return text
+
+        def fake_sum(src):
+            return "Bad text\""
+
+        orig = {
+            "ext": pipeline.extract_main_text,
+            "clean": pipeline.clean_text,
+            "llm": pipeline.llm_summarize,
+        }
+        pipeline.extract_main_text = fake_extract
+        pipeline.clean_text = fake_clean
+        pipeline.llm_summarize = fake_sum
+        try:
+            with self.assertLogs(pipeline._LOG, level="WARNING") as log:
+                out = pipeline.enrich_articles([art])
+        finally:
+            pipeline.extract_main_text = orig["ext"]
+            pipeline.clean_text = orig["clean"]
+            pipeline.llm_summarize = orig["llm"]
+
+        self.assertEqual(out[0]["script"], "Bad text...")
+        self.assertTrue(any("Suspicious script" in m for m in log.output))
+
+        import tempfile, json
+        with tempfile.TemporaryDirectory() as td:
+            path = pipeline.save_articles(out, Path(td))
+            with open(path) as f:
+                loaded = json.load(f)
+
+        self.assertEqual(loaded[0]["script"], "Bad text...")
 
 class TestRun(unittest.TestCase):
     def test_run_calls_steps_and_returns_path(self):
