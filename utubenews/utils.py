@@ -45,27 +45,20 @@ def filter_topic(articles: list[dict], keywords: list[str]) -> list[dict]:
     return out
 
 
-def filter_keywords(
-    articles: list[dict],
-    include: list[str] | None = None,
-    exclude: list[str] | None = None,
-) -> list[dict]:
-    """Filter ``articles`` by include and exclude keyword lists.
+def filter_keywords(articles: list[dict], exclude: list[str] | None = None) -> list[dict]:
+    """Return ``articles`` with unwanted keywords removed.
 
-    The check is case-insensitive and looks for keywords in the article title
-    and description. Articles must contain at least one ``include`` keyword
-    (when provided) and none of the ``exclude`` keywords.
+    The search is case-insensitive and looks for keywords in the article title
+    and description. Any article containing one of the ``exclude`` keywords is
+    dropped.
     """
 
-    include = [kw.lower() for kw in include or []]
     exclude = [kw.lower() for kw in exclude or []]
 
     result: list[dict] = []
     for art in articles:
         text = (art.get("title", "") + " " + art.get("description", "")).lower()
 
-        if include and not any(kw in text for kw in include):
-            continue
         if exclude and any(kw in text for kw in exclude):
             continue
 

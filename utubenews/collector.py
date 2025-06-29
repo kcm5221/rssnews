@@ -12,8 +12,7 @@ from .utils import filter_keywords
 _LOG = logging.getLogger(__name__)
 _ALLOWED_TOPICS = {"IT", "게임", "AI", "보안", "프로그래밍"}
 
-# Articles are further filtered by these keyword lists.
-_INCLUDE_KEYWORDS = ["프로그램", "사이버 보안"]
+# Keywords used to filter Naver search results.
 _EXCLUDE_KEYWORDS = ["공항", "cctv", "경비", "정치", "교육 프로그램", "대학일자리"]
 
 _SRC_PATH = Path("rss_sources.yaml")
@@ -91,7 +90,6 @@ def collect_all(days: int = 1) -> list[dict]:
 
     naver_only = filter_keywords(
         naver_only,
-        include=_INCLUDE_KEYWORDS,
         exclude=_EXCLUDE_KEYWORDS,
     )
 
