@@ -15,6 +15,11 @@ if __name__ == "__main__":
         default=1,
         help="Number of days of articles to collect (default: 1)",
     )
+    parser.add_argument(
+        "--save-bodies",
+        action="store_true",
+        help="Save article bodies to a text file",
+    )
     args = parser.parse_args()
 
     setup_logging()
@@ -28,4 +33,13 @@ if __name__ == "__main__":
         script = build_casual_script(articles, target_lang=lang, add_closing=False)
     script = postprocess_script(script)
     out.with_suffix(".txt").write_text(script)
+    if args.save_bodies:
+        bodies_path = out.with_suffix(".bodies.txt")
+        with bodies_path.open("w") as bf:
+            for art in articles:
+                title = art.get("title", "").strip()
+                link = art.get("link", "").strip()
+                body = art.get("body", "").strip()
+                bf.write(f"{title}\n{link}\n{body}\n\n")
+        print(f"Saved bodies to {bodies_path}")
     print(script)
