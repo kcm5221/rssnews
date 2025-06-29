@@ -365,12 +365,12 @@ class TestSummaries(unittest.TestCase):
         self.assertIn("A", result)
         self.assertIn("B", result)
         self.assertIn("D!", result)
-        self.assertTrue(result.strip().endswith("😊"))
+        self.assertTrue(result.strip().endswith("오늘 뉴스는 여기까지입니다."))
 
     def test_build_casual_script_without_closing(self):
         arts = [{"script": "A. B."}]
         result = build_casual_script(arts, add_closing=False)
-        self.assertNotIn("좋은 하루 보내세요", result)
+        self.assertNotIn("오늘 뉴스는 여기까지입니다.", result)
 
     def test_build_casual_script_translates_when_lang(self):
         arts = [{"script": "A. B."}]
@@ -388,7 +388,7 @@ class TestSummaries(unittest.TestCase):
         finally:
             summarizer.translate_text = orig
 
-        expected_raw = "A.\nB.\n\n오늘 뉴스 여기까지! 좋은 하루 보내세요 😊"
+        expected_raw = "A.\nB.\n\n오늘 뉴스는 여기까지입니다."
         self.assertEqual(called["text"], expected_raw)
         self.assertEqual(called["lang"], "en")
         self.assertEqual(result, "X")
@@ -407,7 +407,7 @@ class TestSummaries(unittest.TestCase):
             summarizer.translate_text = orig
 
         self.assertNotIn("errors in the English translation", result)
-        self.assertTrue(result.strip().endswith("😊"))
+        self.assertTrue(result.strip().endswith("오늘 뉴스는 여기까지입니다."))
 
     def test_summarize_blocks(self):
         blocks = ["A. Long sentence here.", "Short one. Another longer sentence."]

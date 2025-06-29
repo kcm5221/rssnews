@@ -255,7 +255,7 @@ def build_casual_script(
         parts.append(part)
 
     if add_closing:
-        parts.append("오늘 뉴스 여기까지! 좋은 하루 보내세요 😊")
+        parts.append("오늘 뉴스는 여기까지입니다.")
     script = "\n\n".join(parts)
     if target_lang:
         script = translate_text(script, target_lang)
