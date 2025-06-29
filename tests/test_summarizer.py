@@ -224,6 +224,45 @@ class TestSummaries(unittest.TestCase):
         self.assertIsNotNone(calls.get("min"))
         self.assertLessEqual(calls["min"], calls["max"])
 
+    def test_llm_summarize_blank_then_min_length(self):
+        """Calling with blank text returns empty and later sets min_length."""
+        summarizer._PIPELINE = None
+
+        calls: list[dict] = []
+
+        def fake_summary(text, max_length=60, min_length=None, do_sample=False, truncation=False):
+            calls.append({"text": text, "max": max_length, "min": min_length})
+            return [{"summary_text": "OK"}]
+
+        fake_mod = types.ModuleType("transformers")
+        fake_mod.pipeline = lambda name: fake_summary
+
+        orig_mod = sys.modules.get("transformers")
+        sys.modules["transformers"] = fake_mod
+
+        import utubenews.article_extractor as ae
+        orig_qs = ae.quick_summarize
+        ae.quick_summarize = lambda *_a, **_k: "BAD"
+
+        try:
+            empty_result = llm_summarize("")
+            self.assertEqual(empty_result, "")
+            self.assertEqual(calls, [])
+
+            filled_result = llm_summarize("short text", max_tokens=20)
+        finally:
+            if orig_mod is not None:
+                sys.modules["transformers"] = orig_mod
+            else:
+                del sys.modules["transformers"]
+            ae.quick_summarize = orig_qs
+            summarizer._PIPELINE = None
+
+        self.assertEqual(filled_result, "OK")
+        self.assertEqual(len(calls), 1)
+        self.assertIsNotNone(calls[0].get("min"))
+        self.assertLessEqual(calls[0]["min"], calls[0]["max"])
+
     def test_llm_summarize_truncates_to_model_length_and_passes_flag(self):
         summarizer._PIPELINE = None
 
