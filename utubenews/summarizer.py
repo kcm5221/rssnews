@@ -124,6 +124,9 @@ def llm_summarize(text: str, max_tokens: int = 180) -> str:
     abstract.
     """
 
+    if not text or not text.strip():
+        return ""
+
     global _PIPELINE
     try:  # pragma: no cover - optional heavy dependency
         from transformers import pipeline  # type: ignore
