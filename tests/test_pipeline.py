@@ -119,8 +119,8 @@ class TestEnrichArticles(unittest.TestCase):
             pipeline.clean_text = orig["clean"]
             pipeline.llm_summarize = orig["llm"]
 
-        self.assertEqual(out[0]["script"], "SCRIPT-BODY-L1...")
-        self.assertEqual(out[1]["script"], "SCRIPT-BODY-L2...")
+        self.assertEqual(out[0]["script"], "SCRIPT-BODY-L1…")
+        self.assertEqual(out[1]["script"], "SCRIPT-BODY-L2…")
         self.assertEqual(out[0]["body"], "BODY-L1")
         self.assertEqual(out[1]["body"], "BODY-L2")
 
@@ -152,7 +152,7 @@ class TestEnrichArticles(unittest.TestCase):
             pipeline.clean_text = orig["clean"]
             pipeline.llm_summarize = orig["llm"]
 
-        self.assertEqual(out[0]["script"], "short...")
+        self.assertEqual(out[0]["script"], "short…")
         self.assertTrue(any("Suspicious script" in m for m in log.output))
 
         import tempfile, json
@@ -161,7 +161,7 @@ class TestEnrichArticles(unittest.TestCase):
             with open(path) as f:
                 loaded = json.load(f)
 
-        self.assertEqual(loaded[0]["script"], "short...")
+        self.assertEqual(loaded[0]["script"], "short…")
 
     def test_enrich_articles_warns_on_unbalanced_quote(self):
         art = {"title": "T", "link": "L"}
@@ -191,7 +191,7 @@ class TestEnrichArticles(unittest.TestCase):
             pipeline.clean_text = orig["clean"]
             pipeline.llm_summarize = orig["llm"]
 
-        self.assertEqual(out[0]["script"], "Bad text...")
+        self.assertEqual(out[0]["script"], "Bad text…")
         self.assertTrue(any("Suspicious script" in m for m in log.output))
 
         import tempfile, json
@@ -200,7 +200,14 @@ class TestEnrichArticles(unittest.TestCase):
             with open(path) as f:
                 loaded = json.load(f)
 
-        self.assertEqual(loaded[0]["script"], "Bad text...")
+        self.assertEqual(loaded[0]["script"], "Bad text…")
+
+
+class TestNormalizeScript(unittest.TestCase):
+    def test_normalize_script_fixes_trailing_quote(self):
+        from utubenews.summarizer import normalize_script
+
+        self.assertEqual(normalize_script("Bad summary\""), "Bad summary…")
 
 class TestRun(unittest.TestCase):
     def test_run_calls_steps_and_returns_path(self):

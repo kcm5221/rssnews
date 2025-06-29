@@ -12,3 +12,4 @@
 - Add tests for summarization utilities
 - Improve `extract_main_text` to parse `<article>` containers and lower
   default `min_len` to 10
+- Normalize generated scripts before saving

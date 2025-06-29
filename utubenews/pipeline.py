@@ -6,7 +6,7 @@ import json, logging, datetime as dt
 from pathlib import Path
 from .collector import collect_all
 from .article_extractor import extract_main_text
-from .summarizer import llm_summarize
+from .summarizer import llm_summarize, normalize_script
 from .text_utils import clean_text
 from .utils import deduplicate
 
@@ -29,25 +29,10 @@ def enrich_articles(articles: list[dict]) -> list[dict]:
         summary_src = body or art.get("summary") or art["title"]
         summary_src = clean_text(summary_src)
         script = llm_summarize(summary_src)
-
-        suspicious = False
-        trimmed = script.strip()
-        if trimmed.count('"') % 2 == 1 or trimmed.count('“') != trimmed.count('”'):
-            suspicious = True
-            if trimmed.endswith('"') or trimmed.endswith('“'):
-                trimmed = trimmed[:-1]
-            elif trimmed.count('“') > trimmed.count('”'):
-                trimmed += '”'
-
-        if len(trimmed) < 20 or trimmed[-1] not in '.!?':
-            suspicious = True
-            if trimmed and trimmed[-1] not in '.!?':
-                trimmed = trimmed.rstrip('"”') + '...'
-
-        if suspicious:
+        normalized = normalize_script(script)
+        if normalized != script:
             _LOG.warning("Suspicious script for %s: %r", art.get("link"), script)
-
-        art["script"] = trimmed
+        art["script"] = normalized
     return articles
 
 
