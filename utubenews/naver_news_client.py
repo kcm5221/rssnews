@@ -41,9 +41,16 @@ def fetch_naver_articles(
     for p in range(max_pages):
         start = p * _DISPLAY + 1
         params = {"query": query, "display": _DISPLAY, "start": start, "sort": "date"}
-        r = requests.get(NAVER_URL, headers=HEADERS, params=params, timeout=10)
-        r.raise_for_status()
-        for a in r.json().get("items", []):
+        try:
+            r = requests.get(
+                NAVER_URL, headers=HEADERS, params=params, timeout=10
+            )
+            r.raise_for_status()
+            items = r.json().get("items", [])
+        except requests.RequestException as exc:
+            _LOG.warning("네이버 요청 실패: %s", exc)
+            return articles
+        for a in items:
             pub = _parse(a["pubDate"]).replace(tzinfo=None)
             if pub < cutoff:
                 _LOG.info("⚠ %d일 이전 기사 도달, 조기 종료", days)
