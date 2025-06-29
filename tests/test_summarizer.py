@@ -96,6 +96,33 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(result, "FB")
         self.assertEqual(called["text"], "text here")
 
+    def test_llm_summarize_returns_empty_on_blank_input(self):
+        summarizer._PIPELINE = None
+
+        fake_mod = types.ModuleType("transformers")
+        def fake_pipe(name):
+            raise AssertionError("pipeline should not be called")
+        fake_mod.pipeline = fake_pipe
+
+        orig_trans = sys.modules.get("transformers")
+        sys.modules["transformers"] = fake_mod
+
+        import utubenews.article_extractor as ae
+        orig_qs = ae.quick_summarize
+        ae.quick_summarize = lambda *_a, **_k: "BAD"
+
+        try:
+            result = llm_summarize("   ")
+        finally:
+            if orig_trans is not None:
+                sys.modules["transformers"] = orig_trans
+            else:
+                del sys.modules["transformers"]
+            ae.quick_summarize = orig_qs
+            summarizer._PIPELINE = None
+
+        self.assertEqual(result, "")
+
     def test_llm_summarize_reuses_pipeline(self):
         summarizer._PIPELINE = None
 
