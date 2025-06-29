@@ -175,8 +175,11 @@ class TestSummaries(unittest.TestCase):
         class DummyTokenizer:
             model_max_length = 3
 
-            def encode(self, text, truncation=False):
-                return text.split()
+            def encode(self, text, max_length=None, truncation=False, **_k):
+                tokens = text.split()
+                if truncation and max_length is not None and len(tokens) > max_length:
+                    tokens = tokens[:max_length]
+                return tokens
 
             def decode(self, tokens, skip_special_tokens=True):
                 return " ".join(tokens)
@@ -220,8 +223,11 @@ class TestSummaries(unittest.TestCase):
         class DummyTokenizer:
             model_max_length = summarizer.MAX_LLM_INPUT_TOKENS
 
-            def encode(self, text, truncation=False):
-                return text.split()
+            def encode(self, text, max_length=None, truncation=False, **_k):
+                tokens = text.split()
+                if truncation and max_length is not None and len(tokens) > max_length:
+                    tokens = tokens[:max_length]
+                return tokens
 
             def decode(self, tokens, skip_special_tokens=True):
                 return " ".join(tokens)
