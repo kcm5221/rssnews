@@ -28,7 +28,26 @@ def enrich_articles(articles: list[dict]) -> list[dict]:
         art["body"] = body
         summary_src = body or art.get("summary") or art["title"]
         summary_src = clean_text(summary_src)
-        art["script"] = llm_summarize(summary_src)
+        script = llm_summarize(summary_src)
+
+        suspicious = False
+        trimmed = script.strip()
+        if trimmed.count('"') % 2 == 1 or trimmed.count('“') != trimmed.count('”'):
+            suspicious = True
+            if trimmed.endswith('"') or trimmed.endswith('“'):
+                trimmed = trimmed[:-1]
+            elif trimmed.count('“') > trimmed.count('”'):
+                trimmed += '”'
+
+        if len(trimmed) < 20 or trimmed[-1] not in '.!?':
+            suspicious = True
+            if trimmed and trimmed[-1] not in '.!?':
+                trimmed = trimmed.rstrip('"”') + '...'
+
+        if suspicious:
+            _LOG.warning("Suspicious script for %s: %r", art.get("link"), script)
+
+        art["script"] = trimmed
     return articles
 
 
@@ -43,6 +62,11 @@ def save_articles(articles: list[dict], directory: Path = RAW_DIR) -> Path:
     out_path = directory / f"articles_{ts}.json"
     out_path.write_text(json.dumps(articles, ensure_ascii=False, indent=2))
     _LOG.info("총 %d건 저장 → %s", len(articles), out_path)
+    try:
+        with out_path.open() as f:
+            json.load(f)
+    except Exception as exc:
+        _LOG.error("Failed to validate JSON %s: %s", out_path, exc)
     return out_path
 
 def run(days: int = 1) -> Path:
