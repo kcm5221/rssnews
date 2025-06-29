@@ -271,5 +271,50 @@ class TestRun(unittest.TestCase):
         self.assertEqual(path, Path("out.json"))
         self.assertEqual(order, ["collect", "dedup", "enrich", "sort", "save"])
 
+
+class TestMainCLI(unittest.TestCase):
+    def test_main_passes_days_argument(self):
+        import runpy, tempfile, sys
+        from utubenews import pipeline as pl
+        from utubenews import summarizer as summ
+        from utubenews import utils as ut
+
+        called = {}
+
+        def fake_run(days=1):
+            called["days"] = days
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
+            tmp.write(b"[]")
+            tmp.close()
+            return Path(tmp.name)
+
+        def fake_build(arts, target_lang=None):
+            return ""
+
+        def fake_post(text):
+            return text
+
+        orig_run = pl.run
+        orig_build = summ.build_casual_script
+        orig_post = summ.postprocess_script
+        orig_log = ut.setup_logging
+        pl.run = fake_run
+        summ.build_casual_script = fake_build
+        summ.postprocess_script = fake_post
+        ut.setup_logging = lambda *a, **k: None
+
+        argv = sys.argv
+        sys.argv = ["main.py", "--days", "3"]
+        try:
+            runpy.run_module("main", run_name="__main__")
+        finally:
+            pl.run = orig_run
+            summ.build_casual_script = orig_build
+            summ.postprocess_script = orig_post
+            ut.setup_logging = orig_log
+            sys.argv = argv
+
+        self.assertEqual(called.get("days"), 3)
+
 if __name__ == "__main__":
     unittest.main()
