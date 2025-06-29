@@ -7,6 +7,8 @@ import textwrap
 from typing import Optional, List
 import logging
 
+from .text_utils import clean_text
+
 _LOG = logging.getLogger(__name__)
 
 # cache for the transformers summarization pipeline
@@ -244,8 +246,9 @@ def build_casual_script(articles: list[dict], target_lang: Optional[str] = None)
     parts.append("오늘 뉴스 여기까지! 좋은 하루 보내세요 😊")
     script = "\n\n".join(parts)
     if target_lang:
-        return translate_text(script, target_lang)
-    return script
+        script = translate_text(script, target_lang)
+    cleaned_lines = [clean_text(line) for line in script.splitlines()]
+    return "\n".join([l for l in cleaned_lines if l])
 
 
 def summarize_blocks(blocks: List[str], max_sent: int = 1) -> List[str]:

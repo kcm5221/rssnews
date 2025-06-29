@@ -388,6 +388,22 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(called["lang"], "en")
         self.assertEqual(result, "X")
 
+    def test_build_casual_script_cleans_translation_output(self):
+        arts = [{"script": "A."}]
+
+        def fake_translate(text, lang):
+            return "(It is assumed that there may be errors in the English translation.) " + text + "  "
+
+        orig = summarizer.translate_text
+        summarizer.translate_text = fake_translate
+        try:
+            result = build_casual_script(arts, target_lang="ko")
+        finally:
+            summarizer.translate_text = orig
+
+        self.assertNotIn("errors in the English translation", result)
+        self.assertTrue(result.strip().endswith("😊"))
+
     def test_summarize_blocks(self):
         blocks = ["A. Long sentence here.", "Short one. Another longer sentence."]
         sums = summarize_blocks(blocks, max_sent=1)
