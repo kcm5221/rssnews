@@ -148,11 +148,14 @@ def llm_summarize(text: str, max_tokens: int = 180) -> str:
             words = text.split()
             if len(words) > MAX_LLM_INPUT_TOKENS:
                 text = " ".join(words[:MAX_LLM_INPUT_TOKENS])
-
-        max_length = min(max_tokens, len(text.split()) + 5)
+                words = words[:MAX_LLM_INPUT_TOKENS]
+        words = text.split()
+        max_length = min(max_tokens, len(words) + 5)
+        min_length = min(len(words), max_length)
         result = _PIPELINE(
             text,
             max_length=max_length,
+            min_length=min_length,
             do_sample=False,
             truncation=True,
         )
