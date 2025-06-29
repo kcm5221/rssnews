@@ -187,14 +187,21 @@ def normalize_script(text: str) -> str:
 
     trimmed = (text or "").strip()
 
-    if trimmed.count('"') % 2 == 1 or trimmed.count('“') != trimmed.count('”'):
-        if trimmed.endswith('"') or trimmed.endswith('“'):
+    if (
+        trimmed.count('"') % 2 == 1
+        or trimmed.count('“') != trimmed.count('”')
+        or trimmed.count("'") % 2 == 1
+        or trimmed.count('‘') != trimmed.count('’')
+    ):
+        if trimmed.endswith(('"', '“', "'", '‘')):
             trimmed = trimmed[:-1]
         elif trimmed.count('“') > trimmed.count('”'):
             trimmed += '”'
+        elif trimmed.count('‘') > trimmed.count('’'):
+            trimmed += '’'
 
     if trimmed and trimmed[-1] not in '.!?':
-        trimmed = trimmed.rstrip('"”') + '…'
+        trimmed = trimmed.rstrip("\"”'’") + '…'
 
     return trimmed
 
