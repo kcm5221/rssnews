@@ -36,6 +36,10 @@ class TestUtils(unittest.TestCase):
         raw = "번역결과\n내용입니다"
         self.assertEqual(clean_text(raw), "내용입니다")
 
+    def test_clean_text_strips_control_chars(self):
+        sample = "A\uFFFD\nB\x07\x0cC"
+        self.assertEqual(clean_text(sample), "A BC")
+
     def test_sort_articles(self):
         arts = [
             {"title": "old", "pubDateISO": "2024-01-01T00:00:00"},
