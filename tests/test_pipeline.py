@@ -202,6 +202,37 @@ class TestEnrichArticles(unittest.TestCase):
 
         self.assertEqual(loaded[0]["script"], "Bad text…")
 
+    def test_enrich_articles_falls_back_on_non_text_script(self):
+        art = {"title": "T", "link": "L"}
+
+        def fake_extract(link):
+            return ""
+
+        def fake_clean(text):
+            return text
+
+        def fake_sum(src):
+            return "?!"
+
+        orig = {
+            "ext": pipeline.extract_main_text,
+            "clean": pipeline.clean_text,
+            "llm": pipeline.llm_summarize,
+        }
+        pipeline.extract_main_text = fake_extract
+        pipeline.clean_text = fake_clean
+        pipeline.llm_summarize = fake_sum
+        try:
+            with self.assertLogs(pipeline._LOG, level="WARNING") as log:
+                out = pipeline.enrich_articles([art])
+        finally:
+            pipeline.extract_main_text = orig["ext"]
+            pipeline.clean_text = orig["clean"]
+            pipeline.llm_summarize = orig["llm"]
+
+        self.assertEqual(out[0]["script"], "T…")
+        self.assertTrue(any("Suspicious script" in m for m in log.output))
+
 
 class TestNormalizeScript(unittest.TestCase):
     def test_normalize_script_fixes_trailing_quote(self):
