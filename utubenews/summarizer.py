@@ -180,6 +180,23 @@ def llm_summarize(text: str, max_tokens: int = 180) -> str:
     return quick_summarize("", text)
 
 
+def normalize_script(text: str) -> str:
+    """Return ``text`` with balanced quotes and closing punctuation."""
+
+    trimmed = (text or "").strip()
+
+    if trimmed.count('"') % 2 == 1 or trimmed.count('“') != trimmed.count('”'):
+        if trimmed.endswith('"') or trimmed.endswith('“'):
+            trimmed = trimmed[:-1]
+        elif trimmed.count('“') > trimmed.count('”'):
+            trimmed += '”'
+
+    if trimmed and trimmed[-1] not in '.!?':
+        trimmed = trimmed.rstrip('"”') + '…'
+
+    return trimmed
+
+
 def build_script(title: str, body: str, source: str, license: str) -> str:
     """Return a short markdown script summarizing the article."""
 
