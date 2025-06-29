@@ -7,7 +7,7 @@ _AD_PAT = re.compile(
     re.I,
 )
 _TRANS_WARN_PAT = re.compile(
-    r"\(?\s*It is assumed that there may be errors in the English translation\.\)?",
+    r"\(?\s*(?:It is assumed that there may be errors in the English translation|번역결과)\.?\)?",
     re.I,
 )
 
