@@ -30,6 +30,7 @@ if "bs4" not in sys.modules:
 dummy_newspaper = types.ModuleType("newspaper")
 sys.modules["newspaper"] = dummy_newspaper
 
+import utubenews.article_extractor as ae
 from utubenews.article_extractor import extract_main_text
 
 class TestExtractMainText(unittest.TestCase):
@@ -110,6 +111,43 @@ class TestExtractMainText(unittest.TestCase):
             del dummy_newspaper.Article
 
         self.assertEqual(text, "Fallback.")
+
+    def test_retries_until_success(self):
+        if hasattr(dummy_newspaper, "Article"):
+            del dummy_newspaper.Article
+
+        html = "<html><article><p>Retry.</p></article></html>"
+
+        class FailResponse:
+            def raise_for_status(self):
+                raise DummyRequestException("boom")
+
+        class OkResponse:
+            def raise_for_status(self):
+                pass
+
+            @property
+            def text(self):
+                return html
+
+        calls = {"n": 0}
+
+        def flaky_get(*args, **kwargs):
+            if calls["n"] == 0:
+                calls["n"] += 1
+                return FailResponse()
+            return OkResponse()
+
+        dummy_requests.get = flaky_get
+        orig_sleep = ae.time.sleep
+        ae.time.sleep = lambda s: None
+        try:
+            text = extract_main_text("http://retry")
+        finally:
+            dummy_requests.get = dummy_get
+            ae.time.sleep = orig_sleep
+
+        self.assertEqual(text, "Retry.")
 
 if __name__ == "__main__":
     unittest.main()
