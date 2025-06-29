@@ -361,11 +361,16 @@ class TestSummaries(unittest.TestCase):
 
     def test_build_casual_script(self):
         arts = [{"script": "A. B. C."}, {"script": "D! E. F. G."}]
-        result = build_casual_script(arts)
+        result = build_casual_script(arts, add_closing=True)
         self.assertIn("A", result)
         self.assertIn("B", result)
         self.assertIn("D!", result)
         self.assertTrue(result.strip().endswith("😊"))
+
+    def test_build_casual_script_without_closing(self):
+        arts = [{"script": "A. B."}]
+        result = build_casual_script(arts, add_closing=False)
+        self.assertNotIn("좋은 하루 보내세요", result)
 
     def test_build_casual_script_translates_when_lang(self):
         arts = [{"script": "A. B."}]
@@ -379,7 +384,7 @@ class TestSummaries(unittest.TestCase):
         orig = summarizer.translate_text
         summarizer.translate_text = fake_translate
         try:
-            result = build_casual_script(arts, target_lang="en")
+            result = build_casual_script(arts, target_lang="en", add_closing=True)
         finally:
             summarizer.translate_text = orig
 
@@ -397,7 +402,7 @@ class TestSummaries(unittest.TestCase):
         orig = summarizer.translate_text
         summarizer.translate_text = fake_translate
         try:
-            result = build_casual_script(arts, target_lang="ko")
+            result = build_casual_script(arts, target_lang="ko", add_closing=True)
         finally:
             summarizer.translate_text = orig
 

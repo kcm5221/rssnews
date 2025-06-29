@@ -319,7 +319,7 @@ class TestMainCLI(unittest.TestCase):
             tmp.close()
             return Path(tmp.name)
 
-        def fake_build(arts, target_lang=None):
+        def fake_build(arts, target_lang=None, add_closing=True):
             return ""
 
         def fake_post(text):
