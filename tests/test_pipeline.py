@@ -209,6 +209,16 @@ class TestNormalizeScript(unittest.TestCase):
 
         self.assertEqual(normalize_script("Bad summary\""), "Bad summary…")
 
+    def test_normalize_script_handles_single_quotes(self):
+        from utubenews.summarizer import normalize_script
+
+        self.assertEqual(normalize_script("Bad summary'"), "Bad summary…")
+
+    def test_normalize_script_handles_opening_quote(self):
+        from utubenews.summarizer import normalize_script
+
+        self.assertEqual(normalize_script("“Bad summary"), "“Bad summary…")
+
 class TestRun(unittest.TestCase):
     def test_run_calls_steps_and_returns_path(self):
         collected = [{"title": "A"}]
