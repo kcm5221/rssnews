@@ -10,11 +10,13 @@ _TRANS_WARN_PAT = re.compile(
     r"\(?\s*(?:It is assumed that there may be errors in the English translation|번역결과)\.?\)?",
     re.I,
 )
+_CTRL_CHAR_PAT = re.compile(r"[\uFFFD\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]")
 
 def clean_text(text: str) -> str:
     """Normalize whitespace and drop ad-like lines."""
+    text = _CTRL_CHAR_PAT.sub("", text or "")
     parts: list[str] = []
-    for line in (text or "").splitlines():
+    for line in text.splitlines():
         line = line.strip()
         line = _TRANS_WARN_PAT.sub("", line)
         if not line or _AD_PAT.search(line):
