@@ -2,12 +2,28 @@
 본문 추출 · 초간단 요약기
 """
 from __future__ import annotations
-import re, requests, bs4, logging
+import re, requests, bs4, logging, time
 from .text_utils import clean_text
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 _LOG = logging.getLogger(__name__)
+
+
+def _get_with_retries(url: str, headers: dict[str, str], attempts: int = 3, delay: float = 1.0):
+    """Return ``requests.get(url, headers=headers)`` with retry logic."""
+    last_exc: Exception | None = None
+    for i in range(attempts):
+        try:
+            resp = requests.get(url, timeout=10, headers=headers)
+            resp.raise_for_status()
+            return resp
+        except requests.exceptions.RequestException as e:
+            last_exc = e
+            if i < attempts - 1:
+                time.sleep(delay)
+    if last_exc:
+        raise last_exc
 
 
 def extract_with_newspaper(url: str) -> str:
@@ -84,8 +100,7 @@ def extract_main_text(url: str, min_len: int = 10) -> str:
         _LOG.debug("newspaper failed: %s", e)
 
     try:
-        response = requests.get(url, timeout=10, headers=HEADERS)
-        response.raise_for_status()
+        response = _get_with_retries(url, HEADERS)
         html = response.text
         return _extract_from_html(html, min_len=min_len)
     except requests.exceptions.RequestException as e:
