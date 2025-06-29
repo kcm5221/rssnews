@@ -142,10 +142,8 @@ def llm_summarize(text: str, max_tokens: int = 180) -> str:
         if hasattr(_PIPELINE, "tokenizer"):
             tokenizer = _PIPELINE.tokenizer
             max_in = getattr(tokenizer, "model_max_length", MAX_LLM_INPUT_TOKENS)
-            input_ids = tokenizer.encode(text, truncation=False)
-            if len(input_ids) > max_in:
-                input_ids = input_ids[:max_in]
-                text = tokenizer.decode(input_ids, skip_special_tokens=True)
+            input_ids = tokenizer.encode(text, max_length=max_in, truncation=True)
+            text = tokenizer.decode(input_ids, skip_special_tokens=True)
         else:
             words = text.split()
             if len(words) > MAX_LLM_INPUT_TOKENS:
