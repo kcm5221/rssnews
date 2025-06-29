@@ -2,7 +2,7 @@
 (1) 수집 → (2) 본문 추출 → (3) 요약·스크립트 생성 → JSON 저장
 """
 from __future__ import annotations
-import json, logging, datetime as dt
+import json, logging, datetime as dt, re
 from pathlib import Path
 from .collector import collect_all
 from .article_extractor import extract_main_text
@@ -30,7 +30,10 @@ def enrich_articles(articles: list[dict]) -> list[dict]:
         summary_src = clean_text(summary_src)
         script = llm_summarize(summary_src)
         normalized = normalize_script(script)
-        if normalized != script:
+        if len(re.findall(r"[A-Za-z\uAC00-\uD7A3]", normalized)) < 5:
+            _LOG.warning("Suspicious script for %s: %r", art.get("link"), normalized)
+            normalized = normalize_script(art.get("title", ""))
+        elif normalized != script:
             _LOG.warning("Suspicious script for %s: %r", art.get("link"), script)
         art["script"] = normalized
     return articles
