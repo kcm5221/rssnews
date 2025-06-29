@@ -128,6 +128,9 @@ $ python main.py
 # 예: 최근 3일간의 기사를 모으려면
 $ python main.py --days 3
 # 위 명령을 실행하면 기사 요약이 저장되고 "articles_*.txt" 대본 파일도 함께 생성됩니다.
+# 이 텍스트 파일에는 요약된 스크립트만 포함되며 기사 전문은
+# `raw_feeds/articles_*.json` 파일의 "body" 필드에 저장됩니다.
+# 원문이 필요한 경우 해당 JSON 파일을 참고하세요.
 # 대본은 기본적으로 한국어로 생성됩니다.
 
 # 예시 스크립트 실행
@@ -137,6 +140,10 @@ $ python examples/run_pipeline.py
 raw_feeds/
  ┗ articles_20250613_131459.json
 ```
+
+위 코드 블록에서 생성되는 `articles_*.txt` 파일은 요약본만 담고 있습니다. 실제
+기사 전문이 필요하다면 `raw_feeds/articles_*.json` 파일의 `"body"` 키를
+확인하세요.
 
 대본을 다른 언어로 출력하고 싶다면 `--lang` 옵션이나 `SCRIPT_LANG` 환경 변수를 사용합니다. 기본 언어는 `ko`이므로 별도 옵션 없이 실행하면 한국어 대본이 생성됩니다.
 
