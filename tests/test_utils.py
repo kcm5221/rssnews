@@ -32,6 +32,10 @@ class TestUtils(unittest.TestCase):
         raw = "(It is assumed that there may be errors in the English translation.) Actual content"
         self.assertEqual(clean_text(raw), "Actual content")
 
+    def test_clean_text_strips_korean_translation_label(self):
+        raw = "번역결과\n내용입니다"
+        self.assertEqual(clean_text(raw), "내용입니다")
+
     def test_sort_articles(self):
         arts = [
             {"title": "old", "pubDateISO": "2024-01-01T00:00:00"},
