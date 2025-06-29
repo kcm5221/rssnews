@@ -37,7 +37,7 @@ class TestSummaries(unittest.TestCase):
         summarizer._PIPELINE = None
         calls = {}
 
-        def fake_summary(text, max_length=60, do_sample=False, **_k):
+        def fake_summary(text, max_length=60, min_length=None, do_sample=False, **_k):
             calls["text"] = text
             calls["max"] = max_length
             return [{"summary_text": "LLM"}]
@@ -101,7 +101,7 @@ class TestSummaries(unittest.TestCase):
 
         calls = {"pipe": 0, "texts": []}
 
-        def fake_summary(text, max_length=60, do_sample=False, **_k):
+        def fake_summary(text, max_length=60, min_length=None, do_sample=False, **_k):
             calls["texts"].append(text)
             return [{"summary_text": f"OUT-{text}"}]
 
@@ -135,7 +135,7 @@ class TestSummaries(unittest.TestCase):
     def test_llm_summarize_short_input_no_warning(self):
         summarizer._PIPELINE = None
 
-        def fake_summary(text, max_length=60, do_sample=False, **_k):
+        def fake_summary(text, max_length=60, min_length=None, do_sample=False, **_k):
             if max_length > len(text.split()) + 5:
                 import warnings
 
@@ -169,6 +169,34 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(result, "OK")
         self.assertEqual(len(w), 0)
 
+    def test_llm_summarize_sets_min_length(self):
+        summarizer._PIPELINE = None
+
+        calls = {}
+
+        def fake_summary(text, max_length=60, min_length=None, do_sample=False, truncation=False):
+            calls["max"] = max_length
+            calls["min"] = min_length
+            return [{"summary_text": "OK"}]
+
+        fake_mod = types.ModuleType("transformers")
+        fake_mod.pipeline = lambda name: fake_summary
+
+        orig = sys.modules.get("transformers")
+        sys.modules["transformers"] = fake_mod
+
+        try:
+            llm_summarize("short text", max_tokens=20)
+        finally:
+            if orig is not None:
+                sys.modules["transformers"] = orig
+            else:
+                del sys.modules["transformers"]
+            summarizer._PIPELINE = None
+
+        self.assertIsNotNone(calls.get("min"))
+        self.assertLessEqual(calls["min"], calls["max"])
+
     def test_llm_summarize_truncates_to_model_length_and_passes_flag(self):
         summarizer._PIPELINE = None
 
@@ -186,7 +214,7 @@ class TestSummaries(unittest.TestCase):
 
         calls = {}
 
-        def fake_summary(text, max_length=60, do_sample=False, truncation=False):
+        def fake_summary(text, max_length=60, min_length=None, do_sample=False, truncation=False):
             calls["text"] = text
             calls["trunc"] = truncation
             return [{"summary_text": "OK"}]
@@ -234,7 +262,7 @@ class TestSummaries(unittest.TestCase):
 
         calls = {}
 
-        def fake_summary(text, max_length=60, do_sample=False, truncation=False, **_k):
+        def fake_summary(text, max_length=60, min_length=None, do_sample=False, truncation=False, **_k):
             calls["length"] = len(text.split())
             return [{"summary_text": "OK"}]
 
