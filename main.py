@@ -17,8 +17,16 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--save-bodies",
+        dest="save_bodies",
         action="store_true",
-        help="Save article bodies to a text file",
+        default=True,
+        help="Save article bodies to a text file (default: enabled)",
+    )
+    parser.add_argument(
+        "--no-save-bodies",
+        dest="save_bodies",
+        action="store_false",
+        help="Do not save article bodies",
     )
     args = parser.parse_args()
 

@@ -131,10 +131,8 @@ $ python main.py --days 3
 # 이 텍스트 파일에는 요약된 스크립트만 포함되며 기사 전문은
 # `raw_feeds/articles_*.json` 파일의 "body" 필드에 저장됩니다.
 # 원문이 필요한 경우 해당 JSON 파일을 참고하세요.
-# 기사 본문을 한곳에 모으고 싶다면
-$ python main.py --save-bodies
-# 실행 후 같은 이름의 `articles_*.bodies.txt` 파일이 생성되어 제목, 링크,
-# 본문이 순서대로 저장됩니다.
+# 기사 본문 파일(`articles_*.bodies.txt`)은 기본적으로 함께 저장됩니다.
+# 저장을 원치 않는다면 `--no-save-bodies` 옵션을 사용하세요.
 # 대본은 기본적으로 한국어로 생성됩니다.
 
 # 예시 스크립트 실행
@@ -148,8 +146,9 @@ raw_feeds/
 위 코드 블록에서 생성되는 `articles_*.txt` 파일은 요약본만 담고 있습니다. 실제
 기사 전문이 필요하다면 `raw_feeds/articles_*.json` 파일의 `"body"` 키를
 확인하세요.
-`--save-bodies` 옵션을 사용하면 같은 이름의 `articles_*.bodies.txt` 파일에
-제목과 링크, 본문이 모두 저장됩니다.
+기본적으로 같은 이름의 `articles_*.bodies.txt` 파일이 함께 생성되어
+제목과 링크, 본문이 모두 저장됩니다. 저장을 원치 않는 경우
+`--no-save-bodies` 옵션을 사용하면 됩니다.
 
 대본을 다른 언어로 출력하고 싶다면 `--lang` 옵션이나 `SCRIPT_LANG` 환경 변수를 사용합니다. 기본 언어는 `ko`이므로 별도 옵션 없이 실행하면 한국어 대본이 생성됩니다.
 
