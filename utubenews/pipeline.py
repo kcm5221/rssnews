@@ -8,7 +8,7 @@ from .collector import collect_all
 from .article_extractor import extract_main_text
 from .summarizer import llm_summarize, normalize_script
 from .text_utils import clean_text
-from .utils import deduplicate
+from .utils import deduplicate_fuzzy
 
 _LOG = logging.getLogger(__name__)
 RAW_DIR = Path("raw_feeds")
@@ -68,7 +68,7 @@ def run(days: int = 1) -> Path:
     """
     _LOG.info("파이프라인 시작")
     arts = collect_articles(days=days)
-    arts = deduplicate(arts)
+    arts = deduplicate_fuzzy(arts, similarity_threshold=0.9)
     arts = enrich_articles(arts)
     arts = sort_articles(arts)
     return save_articles(arts)

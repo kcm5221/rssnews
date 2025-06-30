@@ -260,9 +260,10 @@ class TestRun(unittest.TestCase):
             self.assertEqual(days, 2)
             return collected
 
-        def fake_dedup(arts):
+        def fake_dedup(arts, **kwargs):
             order.append("dedup")
             self.assertIs(arts, collected)
+            self.assertIn("similarity_threshold", kwargs)
             return arts
 
         def fake_enrich(arts):
@@ -280,13 +281,13 @@ class TestRun(unittest.TestCase):
 
         orig = {
             "collect": pipeline.collect_articles,
-            "dedup": pipeline.deduplicate,
+            "dedup": pipeline.deduplicate_fuzzy,
             "enrich": pipeline.enrich_articles,
             "sort": pipeline.sort_articles,
             "save": pipeline.save_articles,
         }
         pipeline.collect_articles = fake_collect
-        pipeline.deduplicate = fake_dedup
+        pipeline.deduplicate_fuzzy = fake_dedup
         pipeline.enrich_articles = fake_enrich
         pipeline.sort_articles = fake_sort
         pipeline.save_articles = fake_save
@@ -294,7 +295,7 @@ class TestRun(unittest.TestCase):
             path = pipeline.run(days=2)
         finally:
             pipeline.collect_articles = orig["collect"]
-            pipeline.deduplicate = orig["dedup"]
+            pipeline.deduplicate_fuzzy = orig["dedup"]
             pipeline.enrich_articles = orig["enrich"]
             pipeline.sort_articles = orig["sort"]
             pipeline.save_articles = orig["save"]
