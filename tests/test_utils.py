@@ -63,6 +63,15 @@ class TestUtils(unittest.TestCase):
         titles = {a["title"] for a in result}
         self.assertIn("새 보안 프로그램 출시", titles)
 
+    def test_filter_keywords_summary_only(self):
+        arts = [
+            {"summary": "사이버 보안 기능 포함"},
+            {"summary": "다른 내용"},
+        ]
+        result = filter_keywords(arts, include=["보안"])
+        self.assertEqual(len(result), 1)
+        self.assertIn("사이버 보안 기능 포함", result[0].get("summary"))
+
     def test_deduplicate(self):
         arts = [
             {"title": "t1", "link": "a"},
