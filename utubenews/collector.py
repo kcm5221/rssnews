@@ -13,7 +13,20 @@ _LOG = logging.getLogger(__name__)
 _ALLOWED_TOPICS = {"IT", "게임", "AI", "보안", "프로그래밍"}
 
 # Keywords used to filter Naver search results.
-_INCLUDE_KEYWORDS = ["it", "프로그래밍", "인공지능", "AI", "보안", "클라우드", "반도체", "GPU", "데이터", "IoT", "디지털"]
+# 원하는 단어로 변경할 수 있습니다. 예시:
+# _INCLUDE_KEYWORDS = ["프로그램", "사이버 보안"]
+_INCLUDE_KEYWORDS = [
+    "프로그래밍",
+    "인공지능",
+    "AI",
+    "보안",
+    "클라우드",
+    "반도체",
+    "GPU",
+    "데이터",
+    "IoT",
+    "디지털",
+]
 _EXCLUDE_KEYWORDS = [
     "공항",
     "cctv",
