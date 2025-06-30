@@ -6,6 +6,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 import email.utils
 import re
+from difflib import SequenceMatcher
 
 def setup_logging(level: int = logging.INFO) -> None:
     """Configure basic console logging."""
@@ -83,26 +84,63 @@ def filter_keywords(
     return result
 
 
-def deduplicate(articles: list[dict]) -> list[dict]:
+def deduplicate(
+    articles: list[dict], *, similarity_threshold: float = 1.0
+) -> list[dict]:
     """Return new list with duplicate entries removed.
 
     Articles with the same ``link`` or the same ``title`` are considered
-    duplicates. The first occurrence is kept while later ones are dropped.
+    duplicates. When ``similarity_threshold`` is below ``1.0`` the check
+    becomes fuzzy and also compares how similar titles (or available text)
+    are using :class:`difflib.SequenceMatcher`.
+    The first occurrence is kept while later ones are dropped.
     """
 
+    if not 0 < similarity_threshold <= 1:
+        raise ValueError("similarity_threshold must be in (0, 1]")
+
     seen_links: set[str] = set()
-    seen_titles: set[str] = set()
+    seen_titles: list[str] = []  # stored in lowercase for fuzzy comparison
+    seen_texts: list[str] = []
     unique: list[dict] = []
 
     for art in articles:
         link = (art.get("link") or "").strip().lower()
-        title = (art.get("title") or "").strip().lower()
+        title = (art.get("title") or "").strip()
+        title_key = title.lower()
+        text = (art.get("summary") or art.get("body") or "").strip()
+        text_key = text.lower()
 
-        if link in seen_links or title in seen_titles:
+        if link in seen_links or title_key in seen_titles:
+            continue
+
+        is_dup = False
+        if similarity_threshold < 1.0:
+            for t in seen_titles:
+                if SequenceMatcher(None, title_key, t).ratio() >= similarity_threshold:
+                    is_dup = True
+                    break
+            if not is_dup and text_key:
+                for txt in seen_texts:
+                    if SequenceMatcher(None, text_key, txt).ratio() >= similarity_threshold:
+                        is_dup = True
+                        break
+
+        if is_dup:
             continue
 
         seen_links.add(link)
-        seen_titles.add(title)
+        seen_titles.append(title_key)
+        if text_key:
+            seen_texts.append(text_key)
         unique.append(art)
 
     return unique
+
+
+def deduplicate_fuzzy(
+    articles: list[dict], *, similarity_threshold: float = 0.9
+) -> list[dict]:
+    """Wrapper around :func:`deduplicate` with fuzzy matching enabled."""
+
+    return deduplicate(articles, similarity_threshold=similarity_threshold)

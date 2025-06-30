@@ -16,7 +16,7 @@ if "bs4" not in sys.modules:
 
 from utubenews.pipeline import sort_articles
 from utubenews.text_utils import clean_text, merge_text_blocks, split_sentences
-from utubenews.utils import filter_keywords, deduplicate
+from utubenews.utils import filter_keywords, deduplicate, deduplicate_fuzzy
 
 
 class TestUtils(unittest.TestCase):
@@ -109,6 +109,14 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(titles[0], "Title1")
         self.assertEqual(titles[1], "Title2 ")
         self.assertEqual(titles[2], "Title3")
+
+    def test_deduplicate_fuzzy_titles(self):
+        arts = [
+            {"title": "A사 신제품 발표", "link": "l1"},
+            {"title": "A사의 신제품 발표", "link": "l2"},
+        ]
+        result = deduplicate_fuzzy(arts, similarity_threshold=0.9)
+        self.assertEqual(len(result), 1)
 
     def test_merge_text_blocks(self):
         texts = ["Title\n광고", "Title", "Another news"]
