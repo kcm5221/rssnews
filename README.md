@@ -133,6 +133,7 @@ $ python main.py --days 3
 # 원문이 필요한 경우 해당 JSON 파일을 참고하세요.
 # 기사 본문 파일(`articles_*.bodies.txt`)은 기본적으로 함께 저장됩니다.
 # 저장을 원치 않는다면 `--no-save-bodies` 옵션을 사용하세요.
+# 진행 상황을 보려면 `--log-level INFO` 나 `LOG_LEVEL=INFO` 환경 변수를 지정하세요.
 # 대본은 기본적으로 한국어로 생성됩니다.
 
 # 예시 스크립트 실행
