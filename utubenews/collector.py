@@ -34,7 +34,7 @@ _EXCLUDE_KEYWORDS = [
     "정치",
     "교육 프로그램",
     "대학일자리",
-    "양성", "국정", "정부", "drama", "드라마"
+    "양성", "국정", "정부", "drama", "드라마", "개회", "의원"
 ]
 
 _SRC_PATH = Path("rss_sources.yaml")
