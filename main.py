@@ -5,6 +5,7 @@ import argparse
 from utubenews.pipeline import run
 from utubenews.summarizer import build_casual_script, postprocess_script
 from utubenews.utils import setup_logging
+import logging
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -30,7 +31,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    setup_logging()
+    # Suppress noisy warnings for cleaner output
+    setup_logging(level=logging.ERROR)
     out = run(days=args.days)
     articles = json.loads(out.read_text())
     lang = args.lang or os.getenv("SCRIPT_LANG", "ko")
