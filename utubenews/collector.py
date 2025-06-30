@@ -13,7 +13,7 @@ _LOG = logging.getLogger(__name__)
 _ALLOWED_TOPICS = {"IT", "게임", "AI", "보안", "프로그래밍"}
 
 # Keywords used to filter Naver search results.
-_EXCLUDE_KEYWORDS = ["공항", "cctv", "경비", "정치", "교육 프로그램", "대학일자리"]
+_EXCLUDE_KEYWORDS = ["공항", "cctv", "경비", "정치", "교육 프로그램", "대학일자리", "양성"]
 
 _SRC_PATH = Path("rss_sources.yaml")
 
