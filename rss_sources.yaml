@@ -18,7 +18,7 @@
   name: 네이버 IT/보안 키워드
   query: AI 칩셋 보안
   topic: IT
-  max_pages: 2
+  max_pages: 1
 
 # Additional sources for wider coverage
 - type: rss
@@ -35,14 +35,20 @@
   name: 네이버 보안 키워드
   query: 보안
   topic: 보안
-  max_pages: 2
+  max_pages: 1
 - type: naver
   name: 네이버 IT 키워드
   query: IT
   topic: IT
-  max_pages: 2
+  max_pages: 1
 - type: naver
   name: 네이버 프로그래밍 키워드
   query: 프로그래밍
   topic: 프로그래밍
-  max_pages: 2
+  max_pages: 1
+
+- type: naver
+  name: 네이버 클라우드 키워드
+  query: 클라우드
+  topic: IT
+  max_pages: 1
