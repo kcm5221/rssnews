@@ -29,10 +29,15 @@ if __name__ == "__main__":
         action="store_false",
         help="Do not save article bodies",
     )
+    parser.add_argument(
+        "--log-level",
+        default=os.getenv("LOG_LEVEL", "INFO"),
+        help="Logging level (e.g. INFO, DEBUG)",
+    )
     args = parser.parse_args()
 
-    # Suppress noisy warnings for cleaner output
-    setup_logging(level=logging.ERROR)
+    level = getattr(logging, args.log_level.upper(), logging.INFO)
+    setup_logging(level=level)
     out = run(days=args.days)
     articles = json.loads(out.read_text())
     lang = args.lang or os.getenv("SCRIPT_LANG", "ko")
