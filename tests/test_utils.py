@@ -72,6 +72,16 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertIn("사이버 보안 기능 포함", result[0].get("summary"))
 
+    def test_filter_keywords_does_not_match_substrings(self):
+        arts = [
+            {"title": "보안프로그램 출시"},
+            {"title": "프로그램 업데이트"},
+        ]
+        result = filter_keywords(arts, include=["프로그램"])
+        # Only the standalone word should match
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["title"], "프로그램 업데이트")
+
     def test_deduplicate(self):
         arts = [
             {"title": "t1", "link": "a"},

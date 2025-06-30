@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timedelta, timezone
 import email.utils
+import re
 
 def setup_logging(level: int = logging.INFO) -> None:
     """Configure basic console logging."""
@@ -72,9 +73,9 @@ def filter_keywords(
             + art.get("summary", "")
         ).lower()
 
-        if exclude and any(kw in text for kw in exclude):
+        if exclude and any(re.search(r"\b" + re.escape(kw) + r"\b", text) for kw in exclude):
             continue
-        if include and not any(kw in text for kw in include):
+        if include and not any(re.search(r"\b" + re.escape(kw) + r"\b", text) for kw in include):
             continue
 
         result.append(art)
