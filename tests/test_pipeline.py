@@ -29,7 +29,7 @@ class TestCollectAll(unittest.TestCase):
             self.assertEqual(topic, "보안")
             return [naver_item]
 
-        def fake_filter(arts, exclude=None):
+        def fake_filter(arts, include=None, exclude=None):
             return arts
 
         orig = {
@@ -86,7 +86,7 @@ class TestCollectAll(unittest.TestCase):
             collector._load_sources = orig_load
             collector.fetch_naver_articles = orig_naver
 
-        expected = [dict(good, src="naver"), dict(bad, src="naver")]
+        expected = [dict(good, src="naver")]
         self.assertEqual(result, expected)
 
 class TestEnrichArticles(unittest.TestCase):

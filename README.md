@@ -77,12 +77,21 @@ RSS 피드와 네이버 검색 간의 균형을 맞추려면 보통 **1–2 페�
 
 ## 키워드 필터링
 
-`utubenews/collector.py` 의 `_EXCLUDE_KEYWORDS` 목록을 수정하면 네이버 검색
-결과에서 제외할 단어를 지정할 수 있습니다. RSS 피드 기사는 키워드 필터링을
-적용하지 않고, 네이버 기사에 대해서만 제외 키워드가 동작합니다.
+`utubenews/collector.py` 의 `_INCLUDE_KEYWORDS` 와 `_EXCLUDE_KEYWORDS` 목록을 수정하면
+네이버 검색 결과의 필터링 기준을 조정할 수 있습니다. RSS 피드 기사는 키워드 필터링을
+적용하지 않고, 네이버 기사에 대해서만 작동합니다.
 
 ```python
-_EXCLUDE_KEYWORDS = ["공항", "cctv", "경비", "정치"]
+_INCLUDE_KEYWORDS = ["프로그램", "사이버 보안"]
+_EXCLUDE_KEYWORDS = [
+    "공항",
+    "cctv",
+    "경비",
+    "정치",
+    "교육 프로그램",
+    "대학일자리",
+    "양성",
+]
 ```
 
 필요에 따라 위 목록을 원하는 단어로 바꾸고 파이프라인을 실행하세요.
