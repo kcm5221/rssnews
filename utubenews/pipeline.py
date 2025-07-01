@@ -4,6 +4,7 @@
 from __future__ import annotations
 import json, logging, datetime as dt, re
 from pathlib import Path
+from . import collector
 from .collector import collect_all
 from .article_extractor import extract_main_text
 from .summarizer import llm_summarize, normalize_script
@@ -15,9 +16,11 @@ RAW_DIR = Path("raw_feeds")
 RAW_DIR.mkdir(exist_ok=True)
 
 
-def collect_articles(days: int = 1) -> list[dict]:
+def collect_articles(
+    days: int = 1, max_naver: int = collector._MAX_NAVER_ARTICLES
+) -> list[dict]:
     """Collect articles from all configured sources."""
-    return collect_all(days=days)
+    return collect_all(days=days, max_naver=max_naver)
 
 
 def enrich_articles(articles: list[dict]) -> list[dict]:
@@ -57,7 +60,9 @@ def save_articles(articles: list[dict], directory: Path = RAW_DIR) -> Path:
         _LOG.error("Failed to validate JSON %s: %s", out_path, exc)
     return out_path
 
-def run(days: int = 1) -> Path:
+def run(
+    days: int = 1, max_naver: int = collector._MAX_NAVER_ARTICLES
+) -> Path:
     """Execute the full pipeline and return the output file path.
 
     Parameters
@@ -67,7 +72,7 @@ def run(days: int = 1) -> Path:
         ``days`` are processed.
     """
     _LOG.info("파이프라인 시작")
-    arts = collect_articles(days=days)
+    arts = collect_articles(days=days, max_naver=max_naver)
     arts = deduplicate_fuzzy(arts, similarity_threshold=0.9)
     arts = enrich_articles(arts)
     arts = sort_articles(arts)

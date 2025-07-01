@@ -43,7 +43,7 @@ class TestCollectAll(unittest.TestCase):
         collector.fetch_naver_articles = fake_naver
         collector.filter_keywords = fake_filter
         try:
-            result = collector.collect_all(days=1)
+            result = collector.collect_all(days=1, max_naver=5)
         finally:
             collector._load_sources = orig["load"]
             collector._fetch_rss = orig["rss"]
@@ -81,7 +81,7 @@ class TestCollectAll(unittest.TestCase):
         collector._load_sources = fake_load
         collector.fetch_naver_articles = fake_naver
         try:
-            result = collector.collect_all(days=1)
+            result = collector.collect_all(days=1, max_naver=5)
         finally:
             collector._load_sources = orig_load
             collector.fetch_naver_articles = orig_naver
@@ -110,13 +110,13 @@ class TestCollectAll(unittest.TestCase):
         collector.fetch_naver_articles = fake_naver
         collector.filter_keywords = lambda arts, include=None, exclude=None: arts
         try:
-            result = collector.collect_all(days=1)
+            result = collector.collect_all(days=1, max_naver=5)
         finally:
             collector._load_sources = orig["load"]
             collector.fetch_naver_articles = orig["naver"]
             collector.filter_keywords = orig["filter"]
 
-        self.assertEqual(len(result), collector._MAX_NAVER_ARTICLES)
+        self.assertEqual(len(result), 5)
 
 class TestEnrichArticles(unittest.TestCase):
     def test_enrich_articles_uses_summary_or_body(self):
@@ -284,9 +284,10 @@ class TestRun(unittest.TestCase):
         collected = [{"title": "A"}]
         order = []
 
-        def fake_collect(days=1):
+        def fake_collect(days=1, max_naver=collector._MAX_NAVER_ARTICLES):
             order.append("collect")
             self.assertEqual(days, 2)
+            self.assertEqual(max_naver, 8)
             return collected
 
         def fake_dedup(arts, **kwargs):
@@ -321,7 +322,7 @@ class TestRun(unittest.TestCase):
         pipeline.sort_articles = fake_sort
         pipeline.save_articles = fake_save
         try:
-            path = pipeline.run(days=2)
+            path = pipeline.run(days=2, max_naver=8)
         finally:
             pipeline.collect_articles = orig["collect"]
             pipeline.deduplicate_fuzzy = orig["dedup"]
@@ -342,8 +343,9 @@ class TestMainCLI(unittest.TestCase):
 
         called = {}
 
-        def fake_run(days=1):
+        def fake_run(days=1, max_naver=collector._MAX_NAVER_ARTICLES):
             called["days"] = days
+            called["max_naver"] = max_naver
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
             tmp.write(b"[]")
             tmp.close()
@@ -365,7 +367,7 @@ class TestMainCLI(unittest.TestCase):
         ut.setup_logging = lambda *a, **k: None
 
         argv = sys.argv
-        sys.argv = ["main.py", "--days", "3"]
+        sys.argv = ["main.py", "--days", "3", "--max-naver", "7"]
         try:
             runpy.run_module("main", run_name="__main__")
         finally:
@@ -376,6 +378,7 @@ class TestMainCLI(unittest.TestCase):
             sys.argv = argv
 
         self.assertEqual(called.get("days"), 3)
+        self.assertEqual(called.get("max_naver"), 7)
 
 if __name__ == "__main__":
     unittest.main()

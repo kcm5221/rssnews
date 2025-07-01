@@ -3,6 +3,7 @@ import os
 import argparse
 
 from utubenews.pipeline import run
+from utubenews import collector
 from utubenews.summarizer import build_casual_script, postprocess_script
 from utubenews.utils import setup_logging
 import logging
@@ -15,6 +16,12 @@ if __name__ == "__main__":
         type=int,
         default=1,
         help="Number of days of articles to collect (default: 1)",
+    )
+    parser.add_argument(
+        "--max-naver",
+        type=int,
+        default=collector._MAX_NAVER_ARTICLES,
+        help="Maximum number of Naver articles to include",
     )
     parser.add_argument(
         "--save-bodies",
@@ -38,7 +45,7 @@ if __name__ == "__main__":
 
     level = getattr(logging, args.log_level.upper(), logging.INFO)
     setup_logging(level=level)
-    out = run(days=args.days)
+    out = run(days=args.days, max_naver=args.max_naver)
     articles = json.loads(out.read_text())
     lang = args.lang or os.getenv("SCRIPT_LANG", "ko")
     # Don't run translation step when script language is already Korean

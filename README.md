@@ -146,6 +146,8 @@ $ cp .env.sample .env
 $ python main.py
 # 예: 최근 3일간의 기사를 모으려면
 $ python main.py --days 3
+# 네이버 기사 수를 조절하려면
+$ python main.py --max-naver 30
 # 위 명령을 실행하면 기사 요약이 저장되고 "articles_*.txt" 대본 파일도 함께 생성됩니다.
 # 이 텍스트 파일에는 요약된 스크립트만 포함되며 기사 전문은
 # `raw_feeds/articles_*.json` 파일의 "body" 필드에 저장됩니다.
