@@ -41,7 +41,7 @@ _EXCLUDE_KEYWORDS = [
     "사고",
 ]
 
-_MAX_NAVER_ARTICLES = 20
+_MAX_NAVER_ARTICLES = 10
 
 _SRC_PATH = Path("rss_sources.yaml")
 

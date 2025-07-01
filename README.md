@@ -146,9 +146,9 @@ $ cp .env.sample .env
 $ python main.py
 # 예: 최근 3일간의 기사를 모으려면
 $ python main.py --days 3
-# 네이버 기사 수를 조절하려면
-$ python main.py --max-naver 30
-# 전체 기사 수 상한을 두려면
+# 네이버 기사 수를 조절하려면 (기본값 10)
+$ python main.py --max-naver 10
+# 전체 기사 수 상한을 두려면 (기본값 30)
 $ python main.py --max-total 30
 # 두 옵션을 함께 쓰면 네이버 기사 "max-naver" 만큼을 우선 확보하고
 # 나머지는 "max-total - max-naver" 범위에서 다른 소스 기사로 채워집니다.
