@@ -41,6 +41,8 @@ _EXCLUDE_KEYWORDS = [
     "사고",
 ]
 
+_MAX_NAVER_ARTICLES = 20
+
 _SRC_PATH = Path("rss_sources.yaml")
 
 
@@ -119,6 +121,12 @@ def collect_all(days: int = 1) -> list[dict]:
         include=_INCLUDE_KEYWORDS,
         exclude=_EXCLUDE_KEYWORDS,
     )
+
+    if len(naver_only) > _MAX_NAVER_ARTICLES:
+        _LOG.info(
+            "네이버 기사 %d건 중 처음 %d건 사용", len(naver_only), _MAX_NAVER_ARTICLES
+        )
+        naver_only = naver_only[:_MAX_NAVER_ARTICLES]
 
     filtered = others + naver_only
     _LOG.info("네이버 키워드 필터 후 %d건", len(filtered))
