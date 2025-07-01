@@ -86,7 +86,11 @@ def _fetch_rss(url: str, topic: str, days: int = 1) -> list[dict]:
     return items
 
 # -----------------------------------------------------------------------------
-def collect_all(days: int = 1, max_naver: int = _MAX_NAVER_ARTICLES) -> list[dict]:
+def collect_all(
+    days: int = 1,
+    max_naver: int = _MAX_NAVER_ARTICLES,
+    max_total: int | None = None,
+) -> list[dict]:
     """Return articles from all configured sources.
 
     Parameters
@@ -95,6 +99,8 @@ def collect_all(days: int = 1, max_naver: int = _MAX_NAVER_ARTICLES) -> list[dic
         Only include articles published within the last ``days``.
     max_naver : int, optional
         Maximum number of Naver articles to return after filtering.
+    max_total : int | None, optional
+        If set, limit the total number of articles returned after all filtering.
     """
     sources = _load_sources()
     collected: list[dict] = []
@@ -133,4 +139,9 @@ def collect_all(days: int = 1, max_naver: int = _MAX_NAVER_ARTICLES) -> list[dic
 
     filtered = others + naver_only
     _LOG.info("네이버 키워드 필터 후 %d건", len(filtered))
+
+    if max_total is not None and len(filtered) > max_total:
+        _LOG.info("전체 기사 %d건 중 처음 %d건 사용", len(filtered), max_total)
+        filtered = filtered[:max_total]
+
     return filtered
