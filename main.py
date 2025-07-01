@@ -24,6 +24,12 @@ if __name__ == "__main__":
         help="Maximum number of Naver articles to include",
     )
     parser.add_argument(
+        "--max-total",
+        type=int,
+        default=30,
+        help="Maximum total number of articles to include",
+    )
+    parser.add_argument(
         "--save-bodies",
         dest="save_bodies",
         action="store_true",
@@ -45,7 +51,7 @@ if __name__ == "__main__":
 
     level = getattr(logging, args.log_level.upper(), logging.INFO)
     setup_logging(level=level)
-    out = run(days=args.days, max_naver=args.max_naver)
+    out = run(days=args.days, max_naver=args.max_naver, max_total=args.max_total)
     articles = json.loads(out.read_text())
     lang = args.lang or os.getenv("SCRIPT_LANG", "ko")
     # Don't run translation step when script language is already Korean

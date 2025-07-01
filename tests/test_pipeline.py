@@ -151,6 +151,35 @@ class TestCollectAll(unittest.TestCase):
         titles = [a["title"] for a in result]
         self.assertEqual(titles, ["dup", "t2", "t3", "t4", "t5"])
 
+    def test_collect_all_limits_total_articles(self):
+        items = [
+            {"title": f"t{i}", "link": f"l{i}", "summary": "", "topic": "IT", "pubDateISO": "2025", "src": "rss"}
+            for i in range(50)
+        ]
+
+        def fake_load():
+            return [{"type": "rss", "url": "u", "topic": "IT"}]
+
+        def fake_rss(url, topic, days=1):
+            return items
+
+        orig = {
+            "load": collector._load_sources,
+            "rss": collector._fetch_rss,
+            "filter": collector.filter_keywords,
+        }
+        collector._load_sources = fake_load
+        collector._fetch_rss = fake_rss
+        collector.filter_keywords = lambda arts, include=None, exclude=None: arts
+        try:
+            result = collector.collect_all(days=1, max_naver=20, max_total=30)
+        finally:
+            collector._load_sources = orig["load"]
+            collector._fetch_rss = orig["rss"]
+            collector.filter_keywords = orig["filter"]
+
+        self.assertEqual(len(result), 30)
+
 class TestEnrichArticles(unittest.TestCase):
     def test_enrich_articles_uses_summary_or_body(self):
         art_with_sum = {"title": "T1", "link": "L1", "summary": "SUM"}
@@ -317,10 +346,11 @@ class TestRun(unittest.TestCase):
         collected = [{"title": "A"}]
         order = []
 
-        def fake_collect(days=1, max_naver=collector._MAX_NAVER_ARTICLES):
+        def fake_collect(days=1, max_naver=collector._MAX_NAVER_ARTICLES, max_total=None):
             order.append("collect")
             self.assertEqual(days, 2)
             self.assertEqual(max_naver, 8)
+            self.assertIsNone(max_total)
             return collected
 
         def fake_dedup(arts, **kwargs):
@@ -376,9 +406,10 @@ class TestMainCLI(unittest.TestCase):
 
         called = {}
 
-        def fake_run(days=1, max_naver=collector._MAX_NAVER_ARTICLES):
+        def fake_run(days=1, max_naver=collector._MAX_NAVER_ARTICLES, max_total=None):
             called["days"] = days
             called["max_naver"] = max_naver
+            called["max_total"] = max_total
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
             tmp.write(b"[]")
             tmp.close()
@@ -400,7 +431,7 @@ class TestMainCLI(unittest.TestCase):
         ut.setup_logging = lambda *a, **k: None
 
         argv = sys.argv
-        sys.argv = ["main.py", "--days", "3", "--max-naver", "7"]
+        sys.argv = ["main.py", "--days", "3", "--max-naver", "7", "--max-total", "15"]
         try:
             runpy.run_module("main", run_name="__main__")
         finally:
@@ -412,6 +443,7 @@ class TestMainCLI(unittest.TestCase):
 
         self.assertEqual(called.get("days"), 3)
         self.assertEqual(called.get("max_naver"), 7)
+        self.assertEqual(called.get("max_total"), 15)
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,10 +17,12 @@ RAW_DIR.mkdir(exist_ok=True)
 
 
 def collect_articles(
-    days: int = 1, max_naver: int = collector._MAX_NAVER_ARTICLES
+    days: int = 1,
+    max_naver: int = collector._MAX_NAVER_ARTICLES,
+    max_total: int | None = None,
 ) -> list[dict]:
     """Collect articles from all configured sources."""
-    return collect_all(days=days, max_naver=max_naver)
+    return collect_all(days=days, max_naver=max_naver, max_total=max_total)
 
 
 def enrich_articles(articles: list[dict]) -> list[dict]:
@@ -61,7 +63,9 @@ def save_articles(articles: list[dict], directory: Path = RAW_DIR) -> Path:
     return out_path
 
 def run(
-    days: int = 1, max_naver: int = collector._MAX_NAVER_ARTICLES
+    days: int = 1,
+    max_naver: int = collector._MAX_NAVER_ARTICLES,
+    max_total: int | None = None,
 ) -> Path:
     """Execute the full pipeline and return the output file path.
 
@@ -70,9 +74,11 @@ def run(
     days : int, optional
         Range of days to collect articles for. Only articles newer than
         ``days`` are processed.
+    max_total : int | None, optional
+        If set, limit the total number of articles after filtering.
     """
     _LOG.info("파이프라인 시작")
-    arts = collect_articles(days=days, max_naver=max_naver)
+    arts = collect_articles(days=days, max_naver=max_naver, max_total=max_total)
     arts = deduplicate_fuzzy(arts, similarity_threshold=0.9)
     arts = enrich_articles(arts)
     arts = sort_articles(arts)
