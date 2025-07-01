@@ -178,7 +178,51 @@ class TestCollectAll(unittest.TestCase):
             collector._fetch_rss = orig["rss"]
             collector.filter_keywords = orig["filter"]
 
+        self.assertEqual(len(result), 10)
+
+    def test_collect_all_reserves_naver_quota(self):
+        rss_items = [
+            {"title": f"r{i}", "link": f"rl{i}", "summary": "", "topic": "IT", "pubDateISO": "2025", "src": "rss"}
+            for i in range(50)
+        ]
+        naver_items = [
+            {"title": f"n{i}", "link": f"nl{i}", "summary": "", "topic": "IT", "pubDateISO": "2025"}
+            for i in range(20)
+        ]
+
+        def fake_load():
+            return [
+                {"type": "rss", "url": "u", "topic": "IT"},
+                {"type": "naver", "query": "q", "topic": "IT"},
+            ]
+
+        def fake_rss(url, topic, days=1):
+            return rss_items
+
+        def fake_naver(query, topic, days=1, max_pages=10):
+            return naver_items
+
+        orig = {
+            "load": collector._load_sources,
+            "rss": collector._fetch_rss,
+            "naver": collector.fetch_naver_articles,
+            "filter": collector.filter_keywords,
+        }
+        collector._load_sources = fake_load
+        collector._fetch_rss = fake_rss
+        collector.fetch_naver_articles = fake_naver
+        collector.filter_keywords = lambda arts, include=None, exclude=None: arts
+        try:
+            result = collector.collect_all(days=1, max_naver=10, max_total=30)
+        finally:
+            collector._load_sources = orig["load"]
+            collector._fetch_rss = orig["rss"]
+            collector.fetch_naver_articles = orig["naver"]
+            collector.filter_keywords = orig["filter"]
+
+        naver_count = len([a for a in result if a.get("src") == "naver"])
         self.assertEqual(len(result), 30)
+        self.assertGreaterEqual(naver_count, 10)
 
 class TestEnrichArticles(unittest.TestCase):
     def test_enrich_articles_uses_summary_or_body(self):

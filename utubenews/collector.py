@@ -131,6 +131,15 @@ def collect_all(
     )
     naver_only = deduplicate_fuzzy(naver_only, similarity_threshold=0.9)
 
+    others_limit = None
+    if max_total is not None:
+        others_limit = max(max_total - max_naver, 0)
+        if len(others) > others_limit:
+            _LOG.info(
+                "다른 소스 기사 %d건 중 처음 %d건 사용", len(others), others_limit
+            )
+            others = others[:others_limit]
+
     if len(naver_only) > max_naver:
         _LOG.info(
             "네이버 기사 %d건 중 처음 %d건 사용", len(naver_only), max_naver
