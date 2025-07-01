@@ -118,6 +118,39 @@ class TestCollectAll(unittest.TestCase):
 
         self.assertEqual(len(result), 5)
 
+    def test_collect_all_dedupes_before_limit(self):
+        items = [
+            {"title": "dup", "link": "l1", "summary": "", "topic": "IT", "pubDateISO": "2025"},
+            {"title": "dup", "link": "l1b", "summary": "", "topic": "IT", "pubDateISO": "2025"},
+        ] + [
+            {"title": f"t{i}", "link": f"l{i}", "summary": "", "topic": "IT", "pubDateISO": "2025"}
+            for i in range(2,7)
+        ]
+
+        def fake_load():
+            return [{"type": "naver", "query": "q", "topic": "IT"}]
+
+        def fake_naver(query, topic, days=1, max_pages=10):
+            return items
+
+        orig = {
+            "load": collector._load_sources,
+            "naver": collector.fetch_naver_articles,
+            "filter": collector.filter_keywords,
+        }
+        collector._load_sources = fake_load
+        collector.fetch_naver_articles = fake_naver
+        collector.filter_keywords = lambda arts, include=None, exclude=None: arts
+        try:
+            result = collector.collect_all(days=1, max_naver=5)
+        finally:
+            collector._load_sources = orig["load"]
+            collector.fetch_naver_articles = orig["naver"]
+            collector.filter_keywords = orig["filter"]
+
+        titles = [a["title"] for a in result]
+        self.assertEqual(titles, ["dup", "t2", "t3", "t4", "t5"])
+
 class TestEnrichArticles(unittest.TestCase):
     def test_enrich_articles_uses_summary_or_body(self):
         art_with_sum = {"title": "T1", "link": "L1", "summary": "SUM"}

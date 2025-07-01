@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 from .naver_news_client import fetch_naver_articles
 from .text_utils import clean_html_text
-from .utils import filter_keywords
+from .utils import filter_keywords, deduplicate_fuzzy
 
 _LOG = logging.getLogger(__name__)
 _ALLOWED_TOPICS = {"IT", "게임", "AI", "보안", "프로그래밍"}
@@ -123,6 +123,7 @@ def collect_all(days: int = 1, max_naver: int = _MAX_NAVER_ARTICLES) -> list[dic
         include=_INCLUDE_KEYWORDS,
         exclude=_EXCLUDE_KEYWORDS,
     )
+    naver_only = deduplicate_fuzzy(naver_only, similarity_threshold=0.9)
 
     if len(naver_only) > max_naver:
         _LOG.info(
