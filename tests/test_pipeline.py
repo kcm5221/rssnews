@@ -378,8 +378,8 @@ class TestEnrichArticles(unittest.TestCase):
 
         called = {}
 
-        def fake_capture(url, fname, **kwargs):
-            called["fname"] = fname
+        def fake_capture(url, path, **kwargs):
+            called["path"] = path
 
         orig_cap = pipeline.capture
         pipeline.capture = fake_capture
@@ -389,7 +389,9 @@ class TestEnrichArticles(unittest.TestCase):
             pipeline.capture = orig_cap
 
         self.assertIn("screenshot", out[0])
-        self.assertTrue(called["fname"].startswith("screens/"))
+        self.assertTrue(Path(called["path"]).is_absolute())
+        self.assertTrue(str(called["path"]).endswith(".png"))
+        self.assertEqual(out[0]["screenshot"], f"screens/{Path(called['path']).name}")
 
 
 class TestNormalizeScript(unittest.TestCase):
