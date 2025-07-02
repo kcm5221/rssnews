@@ -21,7 +21,7 @@ from .collector import collect_all
 from .article_extractor import extract_main_text
 from .summarizer import llm_summarize, normalize_script
 from .text_utils import clean_text
-from .utils import deduplicate_fuzzy
+from .utils import deduplicate_fuzzy, run_as_sudo
 
 _LOG = logging.getLogger(__name__)
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -63,6 +63,10 @@ def enrich_articles(articles: list[dict], *, with_screenshot: bool = False) -> l
             path = SCREENS_DIR / fname
             try:
                 SCREENS_DIR.mkdir(parents=True, exist_ok=True)
+            except PermissionError:
+                run_as_sudo(["mkdir", "-p", str(SCREENS_DIR)])
+
+            try:
                 capture(art["link"], path)
                 art["screenshot"] = f"screens/{fname}"
             except Exception as e:
