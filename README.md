@@ -134,6 +134,8 @@ $ cd <repo_root>
 # 의존성 설치
 $ pip install -r requirements.txt  # deep_translator>=1.11 포함
 # 파이어폭스 브라우저가 필요합니다 (geckodriver는 자동 설치)
+# Firefox가 없으면 "Your Firefox profile cannot be loaded" 메시지가 나타날 수 있습니다.
+# 브라우저를 설치하거나 `--no-screenshot` 옵션으로 캡처 단계를 생략하세요.
 # 환경 파일 준비
 $ cp .env.sample .env
 ```

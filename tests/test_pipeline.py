@@ -544,5 +544,63 @@ class TestMainCLI(unittest.TestCase):
 
         self.assertFalse(called.get("with_screenshot"))
 
+
+class TestScreenshotDependency(unittest.TestCase):
+    def test_capture_requires_firefox(self):
+        import importlib
+        import types
+        from unittest import mock
+
+        stub = sys.modules["screenshot"]
+        # provide minimal selenium stubs so screenshot can import
+        selenium = types.ModuleType("selenium")
+        webdriver_mod = types.ModuleType("selenium.webdriver")
+        firefox_mod = types.ModuleType("selenium.webdriver.firefox")
+        prof_mod = types.ModuleType("selenium.webdriver.firefox.firefox_profile")
+        opts_mod = types.ModuleType("selenium.webdriver.firefox.options")
+
+        class DummyOptions:
+            def __init__(self):
+                self.headless = False
+                self.profile = None
+
+        prof_mod.FirefoxProfile = lambda profile_directory=None: object()
+        opts_mod.Options = DummyOptions
+        webdriver_mod.Firefox = lambda *a, **k: None
+        webdriver_mod.firefox = firefox_mod
+        firefox_mod.firefox_profile = prof_mod
+        firefox_mod.options = opts_mod
+        selenium.webdriver = webdriver_mod
+
+        sys.modules.update({
+            "selenium": selenium,
+            "selenium.webdriver": webdriver_mod,
+            "selenium.webdriver.firefox": firefox_mod,
+            "selenium.webdriver.firefox.firefox_profile": prof_mod,
+            "selenium.webdriver.firefox.options": opts_mod,
+        })
+        fake_auto = types.ModuleType("geckodriver_autoinstaller")
+        fake_auto.install = lambda: None
+        sys.modules["geckodriver_autoinstaller"] = fake_auto
+
+        del sys.modules["screenshot"]
+        screenshot = importlib.import_module("screenshot")
+
+        with mock.patch("shutil.which", return_value=None):
+            with self.assertRaises(RuntimeError):
+                screenshot.capture("http://example.com", Path("tmp.png"))
+
+        del sys.modules["screenshot"]
+        sys.modules["screenshot"] = stub
+        del sys.modules["geckodriver_autoinstaller"]
+        for name in [
+            "selenium",
+            "selenium.webdriver",
+            "selenium.webdriver.firefox",
+            "selenium.webdriver.firefox.firefox_profile",
+            "selenium.webdriver.firefox.options",
+        ]:
+            del sys.modules[name]
+
 if __name__ == "__main__":
     unittest.main()

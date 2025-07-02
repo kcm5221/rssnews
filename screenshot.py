@@ -1,5 +1,6 @@
 from pathlib import Path
 import tempfile
+import shutil
 
 import geckodriver_autoinstaller
 from selenium import webdriver
@@ -21,6 +22,11 @@ def capture(
     """Capture the given URL using Firefox and save it as a PNG."""
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if shutil.which("firefox") is None:
+        raise RuntimeError(
+            "Firefox executable not found. Install Firefox or run with --no-screenshot to disable screenshots."
+        )
 
     temp_profile_dir = tempfile.mkdtemp()
     profile = FirefoxProfile(profile_directory=temp_profile_dir)
