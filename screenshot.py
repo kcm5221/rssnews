@@ -39,5 +39,16 @@ def capture(
 
     driver.set_window_size(width, height)
     driver.get(url)
+
+    try:
+        # resize window to full page height so the screenshot captures everything
+        page_height = driver.execute_script(
+            "return document.documentElement.scrollHeight"
+        )
+        if isinstance(page_height, int) and page_height > height:
+            driver.set_window_size(width, page_height)
+    except Exception as exc:  # pragma: no cover - best effort
+        _LOG.debug("Failed to determine page height: %s", exc)
+
     driver.save_screenshot(str(out_path))
     driver.quit()
