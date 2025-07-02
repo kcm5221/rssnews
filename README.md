@@ -1,14 +1,15 @@
 # 📰 RSS 뉴스 파이프라인
 
-> **최근 변경 사항**
->
-> * RSS 소스를 `rss_sources.yaml` 로 관리
-> * 모든 수집 결과를 `raw_feeds/` 폴더에 JSON 형식으로 저장
-> * 네이버 검색 API 연동 및 광고 제거 기능 강화
-> * `deduplicate_fuzzy()` 함수로 비슷한 제목의 기사까지 자동 제거
-> * `.env` 파일이 있으면 `python-dotenv` 로 자동 로드
-> * `process_blocks()` 함수로 여러 텍스트 블록을 간단히 요약·번역 가능
->
+## 주요 특징
+
+* 수집 대상은 `rss_sources.yaml` 한 곳에서 관리
+* 모든 결과를 `raw_feeds/` 폴더에 JSON 으로 저장
+* 네이버 검색 API 연동 및 광고 필터링 제공
+* `deduplicate_fuzzy()` 로 유사 기사까지 자동 제거
+* `.env` 파일을 자동 로드하여 API 키 관리
+* 기사 요약과 스크린샷 저장 기능 포함 (Chrome/Chromium 필요)
+* 여러 텍스트 블록을 요약·번역하는 `process_blocks()` 유틸리티
+
 > ⚠️ `feedparser` 가 설치되지 않으면 `main.py` 가 동작하지 않습니다.
 
 ---
@@ -207,7 +208,11 @@ raw_feeds/
 이 스크립트는 전역 `error` 와 `unhandledrejection` 이벤트를 가로채 콘솔에
 로그를 남겨 디버깅을 도와줍니다.
 
+### 예제
 
+`examples/run_pipeline.py` 스크립트를 실행하면 파이프라인을 짧은 코드로
+호출하는 방법을 확인할 수 있습니다. `examples/process_articles.py` 는
+수집된 기사 목록을 읽어 본문을 추출하고 번역하는 예제입니다.
 
 ## 테스트
 
