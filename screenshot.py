@@ -2,15 +2,15 @@ from pathlib import Path
 import logging
 import shutil
 
-import geckodriver_autoinstaller
+import chromedriver_autoinstaller
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.chrome.options import Options
 
 
 _LOG = logging.getLogger(__name__)
 
-# install the appropriate geckodriver for the current platform
-geckodriver_autoinstaller.install()
+# install the appropriate chromedriver for the current platform
+chromedriver_autoinstaller.install()
 
 
 def capture(
@@ -20,19 +20,21 @@ def capture(
     width: int = 1280,
     height: int = 720,
 ) -> None:
-    """Capture the given URL using Firefox and save it as a PNG."""
+    """Capture the given URL using Chrome/Chromium and save it as a PNG."""
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if not shutil.which("firefox"):
-        raise RuntimeError("Firefox browser not found. Install it or run with --no-screenshot")
+    browser = shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chromium-browser")
+    if not browser:
+        raise RuntimeError("Chrome/Chromium browser not found. Install it or run with --no-screenshot")
 
     options = Options()
-    options.headless = True
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
     try:
-        driver = webdriver.Firefox(options=options)
+        driver = webdriver.Chrome(options=options)
     except Exception as exc:
-        _LOG.error("Failed to start Firefox: %s", exc)
+        _LOG.error("Failed to start Chrome: %s", exc)
         raise
 
     driver.set_window_size(width, height)
