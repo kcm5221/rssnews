@@ -1,26 +1,30 @@
 from pathlib import Path
-from typing import Union
-from playwright.sync_api import sync_playwright
+
+import geckodriver_autoinstaller
+from selenium import webdriver
+
+
+# install the appropriate geckodriver for the current platform
+geckodriver_autoinstaller.install()
 
 
 def capture(
     url: str,
-    out_path: Union[str, Path],
+    out_path: Path | str,
     *,
     width: int = 1280,
     height: int = 720,
-    full_page: bool = True,
-    timeout_ms: int = 60_000,
 ) -> None:
-    """Capture the given URL and save it as a PNG."""
+    """Capture the given URL using Firefox and save it as a PNG."""
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True)
-        page = browser.new_page(viewport={"width": width, "height": height})
-        page.goto(url, timeout=timeout_ms)
-        page.wait_for_load_state("networkidle")
-        page.screenshot(path=str(out_path), full_page=full_page)
-        browser.close()
+    options = webdriver.FirefoxOptions()
+    options.headless = True
+    driver = webdriver.Firefox(options=options)
+    driver.set_window_size(width, height)
+    driver.get(url)
+    driver.save_screenshot(str(out_path))
+    driver.quit()
+
 
