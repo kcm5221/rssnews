@@ -12,7 +12,7 @@ beautifulsoup4>=4.0
 googletrans==4.0.0-rc1   # build_casual_script --lang 옵션에 필요
 deep_translator>=1.11
 selenium>=4.10.0
-geckodriver-autoinstaller>=0.2.2
+geckodriver-autoinstaller
 # System Firefox is required for screenshot.py
 python-slugify>=8.0
 
