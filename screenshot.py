@@ -1,5 +1,5 @@
 from pathlib import Path
-import tempfile
+import shutil
 
 import geckodriver_autoinstaller
 from selenium import webdriver
@@ -22,8 +22,7 @@ def capture(
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    temp_profile_dir = tempfile.mkdtemp()
-    profile = FirefoxProfile(profile_directory=temp_profile_dir)
+    profile = FirefoxProfile()
 
     options = Options()
     options.headless = True
@@ -33,5 +32,6 @@ def capture(
     driver.get(url)
     driver.save_screenshot(str(out_path))
     driver.quit()
+    shutil.rmtree(profile.path, ignore_errors=True)
 
 
