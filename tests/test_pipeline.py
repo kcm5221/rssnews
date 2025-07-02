@@ -454,7 +454,7 @@ class TestRun(unittest.TestCase):
         pipeline.save_articles = fake_save
         pipeline.enrich_articles = fake_enrich
         try:
-            path = pipeline.run(days=2, max_naver=8)
+            path = pipeline.run(days=2, max_naver=8, with_screenshot=True)
         finally:
             pipeline.collect_articles = orig["collect"]
             pipeline.deduplicate_fuzzy = orig["dedup"]
@@ -498,7 +498,6 @@ class TestMainCLI(unittest.TestCase):
             "7",
             "--max-total",
             "15",
-            "--no-screenshot",
         ]
         try:
             runpy.run_module("main", run_name="__main__")
@@ -510,6 +509,39 @@ class TestMainCLI(unittest.TestCase):
         self.assertEqual(called.get("days"), 3)
         self.assertEqual(called.get("max_naver"), 7)
         self.assertEqual(called.get("max_total"), 15)
+        self.assertTrue(called.get("with_screenshot"))
+
+    def test_main_no_screenshot_flag(self):
+        import runpy, tempfile, sys
+        from utubenews import pipeline as pl
+        from utubenews import utils as ut
+
+        called = {}
+
+        def fake_run(days=1, max_naver=collector._MAX_NAVER_ARTICLES, max_total=None, *, with_screenshot=False):
+            called["with_screenshot"] = with_screenshot
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
+            tmp.write(b"[]")
+            tmp.close()
+            return Path(tmp.name)
+
+        orig_run = pl.run
+        orig_log = ut.setup_logging
+        pl.run = fake_run
+        ut.setup_logging = lambda *a, **k: None
+
+        argv = sys.argv
+        sys.argv = [
+            "main.py",
+            "--no-screenshot",
+        ]
+        try:
+            runpy.run_module("main", run_name="__main__")
+        finally:
+            pl.run = orig_run
+            ut.setup_logging = orig_log
+            sys.argv = argv
+
         self.assertFalse(called.get("with_screenshot"))
 
 if __name__ == "__main__":
