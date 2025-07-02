@@ -27,7 +27,8 @@ def capture(
 
     options = Options()
     options.headless = True
-    driver = webdriver.Firefox(firefox_profile=profile, options=options)
+    options.profile = profile
+    driver = webdriver.Firefox(options=options)
     driver.set_window_size(width, height)
     driver.get(url)
     driver.save_screenshot(str(out_path))
