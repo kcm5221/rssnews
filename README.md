@@ -155,6 +155,8 @@ $ python main.py --days 3
 $ python main.py --max-naver 10
 # 전체 기사 수 상한을 두려면 (기본값 30)
 $ python main.py --max-total 30
+# 기사 페이지를 캡처하려면
+$ python main.py --with-screenshot
 # 두 옵션을 함께 쓰면 네이버 기사 "max-naver" 만큼을 우선 확보하고
 # 나머지는 "max-total - max-naver" 범위에서 다른 소스 기사로 채워집니다.
 # 실행하면 제목과 링크만 담은 `articles_*.json` 파일이 `raw_feeds/` 폴더에 생성됩니다.
@@ -246,3 +248,4 @@ $ pip install deep_translator>=1.11
 
 본 프로젝트는 [MIT 라이선스](LICENSE) 하에 배포됩니다. 자세한 내용은
 LICENSE 파일을 참고하세요.
+

@@ -4,9 +4,14 @@ import unittest
 from pathlib import Path
 
 # ensure heavy deps are stubbed
-for mod in ["feedparser", "yaml", "requests", "bs4"]:
+for mod in ["feedparser", "yaml", "requests", "bs4", "slugify", "screenshot"]:
     if mod not in sys.modules:
-        sys.modules[mod] = types.ModuleType(mod)
+        m = types.ModuleType(mod)
+        if mod == "slugify":
+            m.slugify = lambda s: s
+        if mod == "screenshot":
+            m.capture = lambda *a, **k: None
+        sys.modules[mod] = m
 
 from utubenews import collector, pipeline
 
@@ -368,6 +373,24 @@ class TestEnrichArticles(unittest.TestCase):
         self.assertEqual(out[0]["script"], "T…")
         self.assertTrue(any("Suspicious script" in m for m in log.output))
 
+    def test_enrich_articles_adds_screenshot(self):
+        art = {"title": "T", "link": "L"}
+
+        called = {}
+
+        def fake_capture(url, fname, **kwargs):
+            called["fname"] = fname
+
+        orig_cap = pipeline.capture
+        pipeline.capture = fake_capture
+        try:
+            out = pipeline.enrich_articles([art], with_screenshot=True)
+        finally:
+            pipeline.capture = orig_cap
+
+        self.assertIn("screenshot", out[0])
+        self.assertTrue(called["fname"].startswith("screens/"))
+
 
 class TestNormalizeScript(unittest.TestCase):
     def test_normalize_script_fixes_trailing_quote(self):
@@ -442,10 +465,11 @@ class TestMainCLI(unittest.TestCase):
 
         called = {}
 
-        def fake_run(days=1, max_naver=collector._MAX_NAVER_ARTICLES, max_total=None):
+        def fake_run(days=1, max_naver=collector._MAX_NAVER_ARTICLES, max_total=None, *, with_screenshot=False):
             called["days"] = days
             called["max_naver"] = max_naver
             called["max_total"] = max_total
+            called["with_screenshot"] = with_screenshot
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
             tmp.write(b"[]")
             tmp.close()
@@ -457,7 +481,16 @@ class TestMainCLI(unittest.TestCase):
         ut.setup_logging = lambda *a, **k: None
 
         argv = sys.argv
-        sys.argv = ["main.py", "--days", "3", "--max-naver", "7", "--max-total", "15"]
+        sys.argv = [
+            "main.py",
+            "--days",
+            "3",
+            "--max-naver",
+            "7",
+            "--max-total",
+            "15",
+            "--with-screenshot",
+        ]
         try:
             runpy.run_module("main", run_name="__main__")
         finally:
@@ -468,6 +501,7 @@ class TestMainCLI(unittest.TestCase):
         self.assertEqual(called.get("days"), 3)
         self.assertEqual(called.get("max_naver"), 7)
         self.assertEqual(called.get("max_total"), 15)
+        self.assertTrue(called.get("with_screenshot"))
 
 if __name__ == "__main__":
     unittest.main()
