@@ -37,7 +37,7 @@
  ┃ ┣ summarizer.py
  ┃ ┣ text_utils.py
  ┃ ┗ utils.py
- ┣ raw_feeds/             # 결과 JSON 저장 폴더
+ ┣ raw_feeds/             # 결과 JSON 저장 폴더 (파이프라인 실행 시 자동 생성)
  ┣ static/               # 클라이언트용 스크립트
  ┃ ┗ error_logger.js
  ┣ rss_sources.yaml       # 수집 대상 목록
@@ -154,6 +154,7 @@ $ python main.py --max-total 30
 # 두 옵션을 함께 쓰면 네이버 기사 "max-naver" 만큼을 우선 확보하고
 # 나머지는 "max-total - max-naver" 범위에서 다른 소스 기사로 채워집니다.
 # 실행하면 제목과 링크만 담은 `articles_*.json` 파일이 `raw_feeds/` 폴더에 생성됩니다.
+# 폴더가 미리 없더라도 파이프라인이 처음 실행될 때 자동으로 만들어집니다.
 # 진행 상황을 보려면 `--log-level INFO` 나 `LOG_LEVEL=INFO` 환경 변수를 지정하세요.
 
 # 결과 파일 예시
