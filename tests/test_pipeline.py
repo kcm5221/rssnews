@@ -498,7 +498,7 @@ class TestMainCLI(unittest.TestCase):
             "7",
             "--max-total",
             "15",
-            "--with-screenshot",
+            "--no-screenshot",
         ]
         try:
             runpy.run_module("main", run_name="__main__")
@@ -510,7 +510,7 @@ class TestMainCLI(unittest.TestCase):
         self.assertEqual(called.get("days"), 3)
         self.assertEqual(called.get("max_naver"), 7)
         self.assertEqual(called.get("max_total"), 15)
-        self.assertTrue(called.get("with_screenshot"))
+        self.assertFalse(called.get("with_screenshot"))
 
 if __name__ == "__main__":
     unittest.main()
