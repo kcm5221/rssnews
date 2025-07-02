@@ -24,7 +24,9 @@ from .text_utils import clean_text
 from .utils import deduplicate_fuzzy
 
 _LOG = logging.getLogger(__name__)
+ROOT_DIR = Path(__file__).resolve().parents[1]
 RAW_DIR = Path("raw_feeds")
+SCREENS_DIR = ROOT_DIR / "screens"
 RAW_DIR.mkdir(exist_ok=True)
 
 
@@ -57,10 +59,12 @@ def enrich_articles(articles: list[dict], *, with_screenshot: bool = False) -> l
         art["script"] = normalized
 
         if with_screenshot:
-            fname = f"screens/{date_str}_{idx:03d}_{slugify(art.get('title', '') or '')}.png"
+            fname = f"{date_str}_{idx:03d}_{slugify(art.get('title', '') or '')}.png"
+            path = SCREENS_DIR / fname
             try:
-                capture(art["link"], fname)
-                art["screenshot"] = fname
+                SCREENS_DIR.mkdir(parents=True, exist_ok=True)
+                capture(art["link"], path)
+                art["screenshot"] = f"screens/{fname}"
             except Exception as e:
                 _LOG.warning("스크린샷 실패: %s (%s)", art.get("title"), e)
     return articles
