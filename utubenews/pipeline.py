@@ -7,8 +7,8 @@
 3. **정렬** – 발행일 기준으로 최신순 정렬
 4. **저장** – 제목과 링크만을 JSON 파일로 저장
 
-``enrich_articles()`` 함수는 본문 추출과 요약을 수행하지만 기본 파이프라인
-(``run()``)에서는 사용하지 않습니다.
+``enrich_articles()`` 함수는 본문 추출과 요약을 수행하며,
+``run()``에서는 스크린샷 옵션이 활성화되어 있을 때(기본값) 호출됩니다.
 """
 from __future__ import annotations
 import json, logging, datetime as dt, re
@@ -90,9 +90,10 @@ def run(
     max_naver: int = collector._MAX_NAVER_ARTICLES,
     max_total: int | None = None,
     *,
-    with_screenshot: bool = False,
+    with_screenshot: bool = True,
 ) -> Path:
     """Execute the full pipeline and return the output file path.
+    Screenshots are captured by default.
 
     Parameters
     ----------
@@ -101,13 +102,15 @@ def run(
         ``days`` are processed.
     max_total : int | None, optional
         If set, limit the total number of articles after filtering.
+    with_screenshot : bool, optional
+        Capture and embed screenshots in the result. Enabled by default.
     """
     _LOG.info("파이프라인 시작")
     arts = collect_articles(days=days, max_naver=max_naver, max_total=max_total)
     arts = deduplicate_fuzzy(arts, similarity_threshold=0.9)
     arts = sort_articles(arts)
     if with_screenshot:
-        arts = enrich_articles(arts, with_screenshot=True)
+        arts = enrich_articles(arts, with_screenshot=bool(with_screenshot))
     return save_articles(arts)
 
 if __name__ == "__main__":

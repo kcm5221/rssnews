@@ -435,16 +435,24 @@ class TestRun(unittest.TestCase):
             self.assertIs(arts, collected)
             return Path("out.json")
 
+        def fake_enrich(arts, *, with_screenshot=False):
+            order.append("enrich")
+            self.assertIs(arts, collected)
+            self.assertTrue(with_screenshot)
+            return arts
+
         orig = {
             "collect": pipeline.collect_articles,
             "dedup": pipeline.deduplicate_fuzzy,
             "sort": pipeline.sort_articles,
             "save": pipeline.save_articles,
+            "enrich": pipeline.enrich_articles,
         }
         pipeline.collect_articles = fake_collect
         pipeline.deduplicate_fuzzy = fake_dedup
         pipeline.sort_articles = fake_sort
         pipeline.save_articles = fake_save
+        pipeline.enrich_articles = fake_enrich
         try:
             path = pipeline.run(days=2, max_naver=8)
         finally:
@@ -452,9 +460,10 @@ class TestRun(unittest.TestCase):
             pipeline.deduplicate_fuzzy = orig["dedup"]
             pipeline.sort_articles = orig["sort"]
             pipeline.save_articles = orig["save"]
+            pipeline.enrich_articles = orig["enrich"]
 
         self.assertEqual(path, Path("out.json"))
-        self.assertEqual(order, ["collect", "dedup", "sort", "save"])
+        self.assertEqual(order, ["collect", "dedup", "sort", "enrich", "save"])
 
 
 class TestMainCLI(unittest.TestCase):
