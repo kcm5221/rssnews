@@ -133,8 +133,7 @@ $ cd <repo_root>
 
 # 의존성 설치
 $ pip install -r requirements.txt  # deep_translator>=1.11 포함
-# Playwright 브라우저(파이어폭스) 설치
-$ playwright install firefox
+# 파이어폭스 브라우저가 필요합니다 (geckodriver는 자동 설치)
 # 환경 파일 준비
 $ cp .env.sample .env
 ```
