@@ -135,6 +135,7 @@ $ cp .env.sample .env
 ```
 `.env` 파일의 `NAVER_CLIENT_ID` 와 `NAVER_CLIENT_SECRET` 값을 자신의
 네이버 API 자격 증명으로 채워 넣으세요.
+`.env`에는 이 두 항목만 있으면 됩니다.
 > `feedparser` 가 설치되어 있지 않으면 `main.py` 실행 시 `ModuleNotFoundError` 가 발생합니다.
 
 ---
