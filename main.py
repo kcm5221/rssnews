@@ -31,9 +31,19 @@ if __name__ == "__main__":
         default=os.getenv("LOG_LEVEL", "INFO"),
         help="Logging level (e.g. INFO, DEBUG)",
     )
+    parser.add_argument(
+        "--with-screenshot",
+        action="store_true",
+        help="Capture article pages as PNG screenshots",
+    )
     args = parser.parse_args()
 
     level = getattr(logging, args.log_level.upper(), logging.INFO)
     setup_logging(level=level)
-    out = run(days=args.days, max_naver=args.max_naver, max_total=args.max_total)
+    out = run(
+        days=args.days,
+        max_naver=args.max_naver,
+        max_total=args.max_total,
+        with_screenshot=args.with_screenshot,
+    )
     print(f"Saved articles to {out}")

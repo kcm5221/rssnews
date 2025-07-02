@@ -14,3 +14,5 @@
   default `min_len` to 10
 - Normalize generated scripts before saving
 - Simplify output: `run()` now saves only titles and links to JSON
+- Optional screenshot capture via `--with-screenshot` using Playwright
+
