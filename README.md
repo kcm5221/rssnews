@@ -169,9 +169,10 @@ raw_feeds/
  ┗ articles_20250613_131459.json
 ```
 
-스크린샷을 저장하는 경우 모든 PNG 파일은 프로젝트 루트의 `screens/` 폴더에
-저장됩니다. `save_articles()` 의 `directory` 값을 변경하더라도 스크린샷은
-항상 이 위치에 모아집니다.
+스크린샷을 저장하는 경우 모든 PNG 파일은 저장소 루트의 `screens/` 폴더에
+저장됩니다. 폴더가 없으면 파이프라인을 실행할 때 자동으로 생성되며,
+`save_articles()` 의 `directory` 값을 바꿔도 스크린샷은 늘 이곳에 저장됩니다.
+`sudo` 로 실행하더라도 동일한 위치에 저장됩니다.
 
 `pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`, `sort_articles()`,
 `save_articles()` 함수로 나뉘어 있습니다. 본문 추출과 요약이 필요하다면
