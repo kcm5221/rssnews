@@ -3,7 +3,6 @@
 __pycache__/
 
 raw_feeds/*
-!raw_feeds/.gitkeep
 
 # OS / IDE
 .DS_Store
