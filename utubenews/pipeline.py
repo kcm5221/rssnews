@@ -13,6 +13,9 @@
 from __future__ import annotations
 import json, logging, datetime as dt, re
 from pathlib import Path
+from datetime import datetime
+from slugify import slugify
+from screenshot import capture
 from . import collector
 from .collector import collect_all
 from .article_extractor import extract_main_text
@@ -34,9 +37,11 @@ def collect_articles(
     return collect_all(days=days, max_naver=max_naver, max_total=max_total)
 
 
-def enrich_articles(articles: list[dict]) -> list[dict]:
-    """Attach body text and summary script to each article."""
-    for art in articles:
+def enrich_articles(articles: list[dict], *, with_screenshot: bool = False) -> list[dict]:
+    """Attach body text, summary script, and optionally a screenshot."""
+    date_str = datetime.now().strftime("%Y%m%d") if with_screenshot else ""
+
+    for idx, art in enumerate(articles, 1):
         body = extract_main_text(art["link"])
         body = clean_text(body)
         art["body"] = body
@@ -50,6 +55,14 @@ def enrich_articles(articles: list[dict]) -> list[dict]:
         elif normalized != script:
             _LOG.warning("Suspicious script for %s: %r", art.get("link"), script)
         art["script"] = normalized
+
+        if with_screenshot:
+            fname = f"screens/{date_str}_{idx:03d}_{slugify(art.get('title', '') or '')}.png"
+            try:
+                capture(art["link"], fname)
+                art["screenshot"] = fname
+            except Exception as e:
+                _LOG.warning("스크린샷 실패: %s (%s)", art.get("title"), e)
     return articles
 
 
@@ -76,6 +89,8 @@ def run(
     days: int = 1,
     max_naver: int = collector._MAX_NAVER_ARTICLES,
     max_total: int | None = None,
+    *,
+    with_screenshot: bool = False,
 ) -> Path:
     """Execute the full pipeline and return the output file path.
 
@@ -91,6 +106,8 @@ def run(
     arts = collect_articles(days=days, max_naver=max_naver, max_total=max_total)
     arts = deduplicate_fuzzy(arts, similarity_threshold=0.9)
     arts = sort_articles(arts)
+    if with_screenshot:
+        arts = enrich_articles(arts, with_screenshot=True)
     return save_articles(arts)
 
 if __name__ == "__main__":
