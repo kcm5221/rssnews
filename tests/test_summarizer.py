@@ -29,9 +29,8 @@ class TestSummaries(unittest.TestCase):
         self.assertEqual(simple_summary(text, max_sent=2), "Bbbbbbbb. CCCCCCCC.")
 
     def test_quick_summarize_short(self):
-        t = "Title"
         short = "short text"
-        self.assertTrue(quick_summarize(t, short).startswith(short))
+        self.assertTrue(quick_summarize(short).startswith(short))
 
     def test_llm_summarize_uses_transformers_pipeline(self):
         summarizer._PIPELINE = None
@@ -75,7 +74,7 @@ class TestSummaries(unittest.TestCase):
         import utubenews.article_extractor as ae
         called = {}
 
-        def fake_qs(title, text, max_sent=3):
+        def fake_qs(text, max_sent=3):
             called["text"] = text
             return "FB"
 

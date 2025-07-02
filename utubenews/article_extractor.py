@@ -110,10 +110,12 @@ def extract_main_text(url: str, min_len: int = 10) -> str:
         _LOG.warning("Failed to parse %s: %s", url, e)
         return ""
 
-def quick_summarize(title: str, text: str, max_sent: int = 3) -> str:
-    """
-    ▶ 문장 단위로 자르고, 단어 빈도 기준 top-N 문장 선택
-    ▶ 너무 짧으면 `text` 처음 200자 정도를 반환
+def quick_summarize(text: str, max_sent: int = 3) -> str:
+    """Return a short summary built from the most frequent sentences.
+
+    The input ``text`` is split by sentence and the top ``max_sent`` sentences
+    with the highest word frequency are returned. When the text is shorter than
+    200 characters it is returned as-is with an ellipsis.
     """
     if len(text) < 200:
         return text[:200] + "..."

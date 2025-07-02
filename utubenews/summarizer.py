@@ -179,7 +179,7 @@ def llm_summarize(text: str, max_tokens: int = 180) -> str:
 
     from .article_extractor import quick_summarize
 
-    return quick_summarize("", text)
+    return quick_summarize(text)
 
 
 def normalize_script(text: str) -> str:
@@ -269,8 +269,6 @@ def summarize_blocks(blocks: List[str], max_sent: int = 1) -> List[str]:
     Each block is cleaned using :func:`text_utils.clean_text` and summarized
     with :func:`simple_summary`. Empty blocks after cleaning are skipped.
     """
-
-    from .text_utils import clean_text
 
     summaries: List[str] = []
     for raw in blocks:
