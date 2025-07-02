@@ -6,6 +6,8 @@
 > * 모든 수집 결과를 `raw_feeds/` 폴더에 JSON 형식으로 저장
 > * 네이버 검색 API 연동 및 광고 제거 기능 강화
 > * `deduplicate_fuzzy()` 함수로 비슷한 제목의 기사까지 자동 제거
+> * `.env` 파일이 있으면 `python-dotenv` 로 자동 로드
+> * `process_blocks()` 함수로 여러 텍스트 블록을 간단히 요약·번역 가능
 >
 > ⚠️ `feedparser` 가 설치되지 않으면 `main.py` 가 동작하지 않습니다.
 
@@ -36,6 +38,7 @@
  ┃ ┣ pipeline.py
  ┃ ┣ summarizer.py
  ┃ ┣ text_utils.py
+ ┃ ┣ block_processor.py
  ┃ ┗ utils.py
  ┣ raw_feeds/             # 결과 JSON 저장 폴더 (파이프라인 실행 시 자동 생성)
  ┣ static/               # 클라이언트용 스크립트
@@ -136,6 +139,7 @@ $ cp .env.sample .env
 `.env` 파일의 `NAVER_CLIENT_ID` 와 `NAVER_CLIENT_SECRET` 값을 자신의
 네이버 API 자격 증명으로 채워 넣으세요.
 `.env`에는 이 두 항목만 있으면 됩니다.
+`python-dotenv` 패키지가 설치되어 있으면 프로그램 실행 시 `.env` 파일을 자동으로 로드합니다.
 > `feedparser` 가 설치되어 있지 않으면 `main.py` 실행 시 `ModuleNotFoundError` 가 발생합니다.
 
 ---
@@ -165,6 +169,13 @@ raw_feeds/
 `pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`, `sort_articles()`,
 `save_articles()` 함수로 나뉘어 있습니다. 본문 추출과 요약이 필요하다면
 `enrich_articles()` 함수를 별도로 호출하여 처리할 수 있습니다.
+
+### 텍스트 블록 처리
+
+뉴스 기사 외의 짧은 글 목록을 한꺼번에 요약하고 번역하려면
+`utubenews.process_blocks()` 함수를 사용할 수 있습니다. 리스트 형태의
+원본 블록과(선택적으로) 제목 리스트를 넘기면 요약된 스크립트를 반환하며,
+`target_lang` 파라미터로 원하는 언어 번역도 가능합니다.
 
 ### 브라우저 스크립트 오류 확인
 
