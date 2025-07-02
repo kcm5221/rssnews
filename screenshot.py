@@ -17,7 +17,7 @@ def capture(
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.firefox.launch(headless=True)
         page = browser.new_page(viewport={"width": width, "height": height})
         page.goto(url, timeout=timeout_ms)
         page.wait_for_load_state("networkidle")
