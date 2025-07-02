@@ -32,10 +32,12 @@ if __name__ == "__main__":
         help="Logging level (e.g. INFO, DEBUG)",
     )
     parser.add_argument(
-        "--with-screenshot",
-        action="store_true",
-        help="Capture article pages as PNG screenshots",
+        "--no-screenshot",
+        action="store_false",
+        dest="with_screenshot",
+        help="Do not capture article pages as PNG screenshots",
     )
+    parser.set_defaults(with_screenshot=True)
     args = parser.parse_args()
 
     level = getattr(logging, args.log_level.upper(), logging.INFO)
