@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import logging
 import re
+import subprocess
+from typing import Sequence
+
+_LOG = logging.getLogger(__name__)
 from difflib import SequenceMatcher
 
 def setup_logging(level: int = logging.INFO) -> None:
@@ -111,3 +115,35 @@ def deduplicate_fuzzy(
     """Wrapper around :func:`deduplicate` with fuzzy matching enabled."""
 
     return deduplicate(articles, similarity_threshold=similarity_threshold)
+
+
+def run_as_sudo(cmd: Sequence[str]) -> bool:
+    """Run ``cmd`` with sudo after confirming with the user.
+
+    Parameters
+    ----------
+    cmd : Sequence[str]
+        Command and arguments to execute with ``sudo``.
+
+    Returns
+    -------
+    bool
+        ``True`` if the command executed, ``False`` otherwise.
+    """
+
+    prompt = "관리자 권한이 필요합니다. 계속하시겠습니까? (y/N): "
+    try:
+        ans = input(prompt)
+    except EOFError:
+        ans = ""
+
+    if ans.strip().lower() != "y":
+        _LOG.info("사용자가 관리자 권한 승인을 거부했습니다.")
+        return False
+
+    try:
+        subprocess.run(["sudo", "-E", *cmd], check=True)
+        return True
+    except Exception as exc:
+        _LOG.error("sudo 명령 실패: %s", exc)
+        return False

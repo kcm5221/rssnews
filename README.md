@@ -173,6 +173,8 @@ raw_feeds/
 저장됩니다. 폴더가 없으면 파이프라인을 실행할 때 자동으로 생성되며,
 `save_articles()` 의 `directory` 값을 바꿔도 스크린샷은 늘 이곳에 저장됩니다.
 `sudo` 로 실행하더라도 동일한 위치에 저장됩니다.
+권한이 부족해 폴더를 만들 수 없을 때는 터미널에서 관리자 권한 사용 여부를 묻고,
+승인하면 `sudo mkdir -p screens` 명령을 실행해 폴더를 생성합니다.
 
 `pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`, `sort_articles()`,
 `save_articles()` 함수로 나뉘어 있습니다. 본문 추출과 요약이 필요하다면
