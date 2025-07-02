@@ -136,6 +136,12 @@ $ pip install -r requirements.txt  # deep_translator>=1.11 포함
 # 크롬 또는 크로미움 브라우저가 필요합니다 (chromedriver는 자동 설치)
 # 설치되어 있지 않으면 스크린샷 저장 시 "Process unexpectedly closed" 오류가 발생합니다.
 # 우분투에서는 `sudo apt-get install chromium-browser` 로 설치할 수 있습니다.
+# Ubuntu 예시
+$ sudo apt update
+$ sudo apt install -y chromium-browser
+# 또는 Google Chrome 설치:
+$ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+$ sudo dpkg -i google-chrome-stable_current_amd64.deb
 # 환경 파일 준비
 $ cp .env.sample .env
 ```
