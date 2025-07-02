@@ -152,59 +152,17 @@ $ python main.py --max-naver 10
 $ python main.py --max-total 30
 # 두 옵션을 함께 쓰면 네이버 기사 "max-naver" 만큼을 우선 확보하고
 # 나머지는 "max-total - max-naver" 범위에서 다른 소스 기사로 채워집니다.
-# 위 명령을 실행하면 기사 요약이 저장되고 "articles_*.txt" 대본 파일도 함께 생성됩니다.
-# 이 텍스트 파일에는 요약된 스크립트만 포함되며 기사 전문은
-# `raw_feeds/articles_*.json` 파일의 "body" 필드에 저장됩니다.
-# 원문이 필요한 경우 해당 JSON 파일을 참고하세요.
-# 기사 본문 파일(`articles_*.bodies.txt`)은 기본적으로 함께 저장됩니다.
-# 저장을 원치 않는다면 `--no-save-bodies` 옵션을 사용하세요.
+# 실행하면 제목과 링크만 담은 `articles_*.json` 파일이 `raw_feeds/` 폴더에 생성됩니다.
 # 진행 상황을 보려면 `--log-level INFO` 나 `LOG_LEVEL=INFO` 환경 변수를 지정하세요.
-# 대본은 기본적으로 한국어로 생성됩니다.
-
-# 예시 스크립트 실행
-$ python examples/run_pipeline.py
 
 # 결과 파일 예시
 raw_feeds/
  ┗ articles_20250613_131459.json
 ```
 
-위 코드 블록에서 생성되는 `articles_*.txt` 파일은 요약본만 담고 있습니다. 실제
-기사 전문이 필요하다면 `raw_feeds/articles_*.json` 파일의 `"body"` 키를
-확인하세요.
-기본적으로 같은 이름의 `articles_*.bodies.txt` 파일이 함께 생성되어
-제목과 링크, 본문이 모두 저장됩니다. 저장을 원치 않는 경우
-`--no-save-bodies` 옵션을 사용하면 됩니다.
-
-대본을 다른 언어로 출력하고 싶다면 `--lang` 옵션이나 `SCRIPT_LANG` 환경 변수를 사용합니다. 기본 언어는 `ko`이므로 별도 옵션 없이 실행하면 한국어 대본이 생성됩니다.
-
-```bash
-$ python main.py --lang en      # 영어로 번역
-# 또는
-$ SCRIPT_LANG=ja python main.py  # 일본어로 번역
-```
-
-이 기능을 사용하려면 `googletrans` 와 `deep_translator` 패키지가 필요합니다.
-두 패키지는 `requirements.txt` 에 포함되어 있습니다. 필요 시 수동으로 설치하려면 다음과 같이 실행하세요.
-
-```bash
-$ pip install googletrans==4.0.0-rc1 deep_translator>=1.11
-```
-
-스크립트가 매우 길 경우 내부적으로 약 5000자 단위로 나누어 순차적으로
-번역한 뒤 다시 합치므로 길이에 상관없이 안정적으로 사용할 수 있습니다.
-
-`pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`,
-`enrich_articles()`, `sort_articles()`, `save_articles()` 함수로 나뉘어 있어
-원하는 단계만 독립적으로 호출할 수 있습니다.
-`enrich_articles()` 단계에서는 기사 본문을 `"body"` 필드에 저장하고
-요약문은 기존 `"script"` 필드에 담깁니다. 요약은 기본적으로 약 180 토큰
-까지 생성하여 원문을 간략히 정돈한 수준의 결과를 얻을 수 있습니다. 더
-길거나 짧은 요약을 원한다면 `llm_summarize(text, max_tokens=...)` 호출 시
-원하는 토큰 수를 지정하면 됩니다.
-너무 긴 본문은 모델 입력 한계(약 1024토큰)을 초과하지 않도록 자동으로 잘라 처리합니다.
-네트워크 오류가 발생하더라도 `extract_main_text()` 함수는 기본적으로 세 번까지
-페이지 요청을 재시도한 뒤 실패하면 빈 문자열을 반환합니다.
+`pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`, `sort_articles()`,
+`save_articles()` 함수로 나뉘어 있습니다. 본문 추출과 요약이 필요하다면
+`enrich_articles()` 함수를 별도로 호출하여 처리할 수 있습니다.
 
 ### 브라우저 스크립트 오류 확인
 

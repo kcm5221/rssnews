@@ -296,7 +296,7 @@ class TestEnrichArticles(unittest.TestCase):
             with open(path) as f:
                 loaded = json.load(f)
 
-        self.assertEqual(loaded[0]["script"], "short…")
+        self.assertEqual(loaded, [{"title": "T", "link": "L"}])
 
     def test_enrich_articles_warns_on_unbalanced_quote(self):
         art = {"title": "T", "link": "L"}
@@ -335,7 +335,7 @@ class TestEnrichArticles(unittest.TestCase):
             with open(path) as f:
                 loaded = json.load(f)
 
-        self.assertEqual(loaded[0]["script"], "Bad text…")
+        self.assertEqual(loaded, [{"title": "T", "link": "L"}])
 
     def test_enrich_articles_falls_back_on_non_text_script(self):
         art = {"title": "T", "link": "L"}
@@ -403,10 +403,6 @@ class TestRun(unittest.TestCase):
             self.assertIn("similarity_threshold", kwargs)
             return arts
 
-        def fake_enrich(arts):
-            order.append("enrich")
-            return arts
-
         def fake_sort(arts):
             order.append("sort")
             return arts
@@ -419,13 +415,11 @@ class TestRun(unittest.TestCase):
         orig = {
             "collect": pipeline.collect_articles,
             "dedup": pipeline.deduplicate_fuzzy,
-            "enrich": pipeline.enrich_articles,
             "sort": pipeline.sort_articles,
             "save": pipeline.save_articles,
         }
         pipeline.collect_articles = fake_collect
         pipeline.deduplicate_fuzzy = fake_dedup
-        pipeline.enrich_articles = fake_enrich
         pipeline.sort_articles = fake_sort
         pipeline.save_articles = fake_save
         try:
@@ -433,19 +427,17 @@ class TestRun(unittest.TestCase):
         finally:
             pipeline.collect_articles = orig["collect"]
             pipeline.deduplicate_fuzzy = orig["dedup"]
-            pipeline.enrich_articles = orig["enrich"]
             pipeline.sort_articles = orig["sort"]
             pipeline.save_articles = orig["save"]
 
         self.assertEqual(path, Path("out.json"))
-        self.assertEqual(order, ["collect", "dedup", "enrich", "sort", "save"])
+        self.assertEqual(order, ["collect", "dedup", "sort", "save"])
 
 
 class TestMainCLI(unittest.TestCase):
     def test_main_passes_days_argument(self):
         import runpy, tempfile, sys
         from utubenews import pipeline as pl
-        from utubenews import summarizer as summ
         from utubenews import utils as ut
 
         called = {}
@@ -459,19 +451,9 @@ class TestMainCLI(unittest.TestCase):
             tmp.close()
             return Path(tmp.name)
 
-        def fake_build(arts, target_lang=None, add_closing=True):
-            return ""
-
-        def fake_post(text):
-            return text
-
         orig_run = pl.run
-        orig_build = summ.build_casual_script
-        orig_post = summ.postprocess_script
         orig_log = ut.setup_logging
         pl.run = fake_run
-        summ.build_casual_script = fake_build
-        summ.postprocess_script = fake_post
         ut.setup_logging = lambda *a, **k: None
 
         argv = sys.argv
@@ -480,8 +462,6 @@ class TestMainCLI(unittest.TestCase):
             runpy.run_module("main", run_name="__main__")
         finally:
             pl.run = orig_run
-            summ.build_casual_script = orig_build
-            summ.postprocess_script = orig_post
             ut.setup_logging = orig_log
             sys.argv = argv
 
