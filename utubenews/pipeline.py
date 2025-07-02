@@ -1,5 +1,14 @@
-"""
-(1) 수집 → (2) 본문 추출 → (3) 요약·스크립트 생성 → JSON 저장
+"""뉴스 수집 파이프라인.
+
+기본 동작은 다음 단계를 수행합니다.
+
+1. **수집** – RSS 및 네이버 검색에서 기사 메타데이터 수집
+2. **중복 제거** – 비슷한 제목의 기사를 걸러냄
+3. **정렬** – 발행일 기준으로 최신순 정렬
+4. **저장** – 제목과 링크만을 JSON 파일로 저장
+
+``enrich_articles()`` 함수는 본문 추출과 요약을 수행하지만 기본 파이프라인
+(``run()``)에서는 사용하지 않습니다.
 """
 from __future__ import annotations
 import json, logging, datetime as dt, re
@@ -50,11 +59,12 @@ def sort_articles(articles: list[dict]) -> list[dict]:
 
 
 def save_articles(articles: list[dict], directory: Path = RAW_DIR) -> Path:
-    """Save articles to a timestamped JSON file and return its path."""
+    """Save article titles and links to a timestamped JSON file."""
     ts = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
     out_path = directory / f"articles_{ts}.json"
-    out_path.write_text(json.dumps(articles, ensure_ascii=False, indent=2))
-    _LOG.info("총 %d건 저장 → %s", len(articles), out_path)
+    simple = [{"title": a.get("title", ""), "link": a.get("link", "")} for a in articles]
+    out_path.write_text(json.dumps(simple, ensure_ascii=False, indent=2))
+    _LOG.info("총 %d건 저장 → %s", len(simple), out_path)
     try:
         with out_path.open() as f:
             json.load(f)
@@ -80,7 +90,6 @@ def run(
     _LOG.info("파이프라인 시작")
     arts = collect_articles(days=days, max_naver=max_naver, max_total=max_total)
     arts = deduplicate_fuzzy(arts, similarity_threshold=0.9)
-    arts = enrich_articles(arts)
     arts = sort_articles(arts)
     return save_articles(arts)
 

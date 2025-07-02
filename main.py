@@ -1,16 +1,13 @@
-import json
 import os
 import argparse
 
 from utubenews.pipeline import run
 from utubenews import collector
-from utubenews.summarizer import build_casual_script, postprocess_script
 from utubenews.utils import setup_logging
 import logging
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--lang", help="Translate script to this language")
     parser.add_argument(
         "--days",
         type=int,
@@ -30,19 +27,6 @@ if __name__ == "__main__":
         help="Maximum total number of articles to include",
     )
     parser.add_argument(
-        "--save-bodies",
-        dest="save_bodies",
-        action="store_true",
-        default=True,
-        help="Save article bodies to a text file (default: enabled)",
-    )
-    parser.add_argument(
-        "--no-save-bodies",
-        dest="save_bodies",
-        action="store_false",
-        help="Do not save article bodies",
-    )
-    parser.add_argument(
         "--log-level",
         default=os.getenv("LOG_LEVEL", "INFO"),
         help="Logging level (e.g. INFO, DEBUG)",
@@ -52,22 +36,4 @@ if __name__ == "__main__":
     level = getattr(logging, args.log_level.upper(), logging.INFO)
     setup_logging(level=level)
     out = run(days=args.days, max_naver=args.max_naver, max_total=args.max_total)
-    articles = json.loads(out.read_text())
-    lang = args.lang or os.getenv("SCRIPT_LANG", "ko")
-    # Don't run translation step when script language is already Korean
-    if lang == "ko":
-        script = build_casual_script(articles, add_closing=False)
-    else:
-        script = build_casual_script(articles, target_lang=lang, add_closing=False)
-    script = postprocess_script(script)
-    out.with_suffix(".txt").write_text(script)
-    if args.save_bodies:
-        bodies_path = out.with_suffix(".bodies.txt")
-        with bodies_path.open("w") as bf:
-            for art in articles:
-                title = art.get("title", "").strip()
-                link = art.get("link", "").strip()
-                body = art.get("body", "").strip()
-                bf.write(f"{title}\n{link}\n{body}\n\n")
-        print(f"Saved bodies to {bodies_path}")
-    print(script)
+    print(f"Saved articles to {out}")
