@@ -6,13 +6,6 @@ import chromedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-
-_LOG = logging.getLogger(__name__)
-
-# install the appropriate chromedriver for the current platform
-chromedriver_autoinstaller.install()
-
-
 def capture(
     url: str,
     out_path: Path | str,
@@ -21,6 +14,9 @@ def capture(
     height: int = 720,
 ) -> None:
     """Capture the given URL using Chrome/Chromium and save it as a PNG."""
+    _LOG = logging.getLogger(__name__)
+    # install the appropriate chromedriver for the current platform
+    chromedriver_autoinstaller.install()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
