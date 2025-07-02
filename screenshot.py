@@ -1,7 +1,10 @@
 from pathlib import Path
+import tempfile
 
 import geckodriver_autoinstaller
 from selenium import webdriver
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+from selenium.webdriver.firefox.options import Options
 
 
 # install the appropriate geckodriver for the current platform
@@ -19,9 +22,12 @@ def capture(
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    options = webdriver.FirefoxOptions()
+    temp_profile_dir = tempfile.mkdtemp()
+    profile = FirefoxProfile(profile_directory=temp_profile_dir)
+
+    options = Options()
     options.headless = True
-    driver = webdriver.Firefox(options=options)
+    driver = webdriver.Firefox(firefox_profile=profile, options=options)
     driver.set_window_size(width, height)
     driver.get(url)
     driver.save_screenshot(str(out_path))
