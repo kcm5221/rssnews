@@ -38,6 +38,53 @@ def extract_with_newspaper(url: str) -> str:
     art.parse()
     return art.text or ""
 
+
+def extract_with_readability(html: str) -> str:
+    """Return main text using ``readability-lxml`` Document."""
+    try:
+        from readability import Document
+    except Exception as e:
+        raise RuntimeError("readability unavailable") from e
+
+    doc = Document(html or "")
+    content = doc.summary() or ""
+    text = re.sub(r"<[^>]+>", " ", content)
+    return clean_text(text)
+
+
+def extract_with_trafilatura(html: str) -> str:
+    """Return main text using ``trafilatura`` library."""
+    try:
+        import trafilatura
+    except Exception as e:
+        raise RuntimeError("trafilatura unavailable") from e
+
+    try:
+        text = trafilatura.extract(html or "", favor_recall=True)
+    except Exception as e:
+        raise RuntimeError("trafilatura failed") from e
+    return clean_text(text or "")
+
+
+def fetch_html_selenium(url: str, wait: float = 2.0) -> str:
+    """Fetch ``url`` using Selenium for JS-heavy pages."""
+    try:
+        import chromedriver_autoinstaller
+        from selenium import webdriver
+    except Exception as e:
+        raise RuntimeError("selenium unavailable") from e
+
+    chromedriver_autoinstaller.install()
+    opts = webdriver.ChromeOptions()
+    opts.add_argument("--headless=new")
+    driver = webdriver.Chrome(options=opts)
+    try:
+        driver.get(url)
+        time.sleep(wait)
+        return driver.page_source
+    finally:
+        driver.quit()
+
 def _regex_extract(html: str, min_len: int) -> str:
     """Fallback text extraction using regex when BeautifulSoup is unavailable."""
     if not html:
@@ -94,18 +141,41 @@ def extract_main_text(url: str, min_len: int = 10) -> str:
     try:
         text = extract_with_newspaper(url)
         cleaned = clean_text(text)
-        if cleaned:
+        if len(cleaned) >= min_len:
+            _LOG.info("extracted with newspaper")
             return cleaned
     except Exception as e:
         _LOG.debug("newspaper failed: %s", e)
 
+    html = ""
     try:
         response = _get_with_retries(url, HEADERS)
         html = response.text
-        return _extract_from_html(html, min_len=min_len)
     except requests.exceptions.RequestException as e:
         _LOG.warning("Failed to fetch %s: %s", url, e)
         return ""
+
+    try:
+        text = extract_with_readability(html)
+        if len(text) >= min_len:
+            _LOG.info("extracted with readability")
+            return text
+    except Exception as e:
+        _LOG.debug("readability failed: %s", e)
+
+    try:
+        text = extract_with_trafilatura(html)
+        if len(text) >= min_len:
+            _LOG.info("extracted with trafilatura")
+            return text
+    except Exception as e:
+        _LOG.debug("trafilatura failed: %s", e)
+
+    try:
+        text = _extract_from_html(html, min_len=min_len)
+        if text:
+            _LOG.info("extracted with html parser")
+        return text
     except Exception as e:
         _LOG.warning("Failed to parse %s: %s", url, e)
         return ""

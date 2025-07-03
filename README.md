@@ -134,6 +134,8 @@ $ cd <repo_root>
 
 # 의존성 설치
 $ pip install -r requirements.txt  # deep_translator>=1.11 포함
+# 기사 본문 추출 정확도를 높이려면 선택 패키지를 추가 설치합니다
+$ pip install readability-lxml trafilatura
 # 크롬 또는 크로미움 브라우저가 필요합니다 (chromedriver는 자동 설치)
 # 설치되어 있지 않으면 스크린샷 저장 시 "Process unexpectedly closed" 오류가 발생합니다.
 # 우분투에서는 `sudo apt-get install chromium-browser` 로 설치할 수 있습니다.
@@ -264,6 +266,12 @@ $ pip install deep_translator>=1.11
 ```
 
 이후 다시 명령을 실행하면 대부분 문제가 해결됩니다.
+
+
+### 본문 추출 향상
+
+`readability-lxml` 과 `trafilatura` 를 함께 설치하면
+HTML 기반 페이지의 본문을 더 정확하게 추출할 수 있습니다.
 
 
 ---
