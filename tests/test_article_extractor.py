@@ -71,14 +71,14 @@ class TestExtractMainText(unittest.TestCase):
             def download(self):
                 pass
             def parse(self):
-                self.text = "NP text"
+                self.text = "NP text success"
 
         dummy_newspaper.Article = GoodArticle
         try:
             text = extract_main_text("http://np")
         finally:
             del dummy_newspaper.Article
-        self.assertEqual(text, "NP text")
+        self.assertEqual(text, "NP text success")
 
     def test_newspaper_failure_falls_back(self):
         class BadArticle:
@@ -148,6 +148,118 @@ class TestExtractMainText(unittest.TestCase):
             ae.time.sleep = orig_sleep
 
         self.assertEqual(text, "Retry.")
+
+    def test_readability_used_before_trafilatura(self):
+        class BadArticle:
+            def __init__(self, url):
+                pass
+
+            def download(self):
+                raise RuntimeError("boom")
+
+            def parse(self):
+                pass
+
+        dummy_newspaper.Article = BadArticle
+
+        html = "<html><p>R news</p></html>"
+
+        class OkResponse:
+            def raise_for_status(self):
+                pass
+
+            @property
+            def text(self):
+                return html
+
+        def ok_get(*a, **k):
+            return OkResponse()
+
+        dummy_requests.get = ok_get
+
+        dummy_readability = types.ModuleType("readability")
+
+        class DummyDoc:
+            def __init__(self, h):
+                pass
+
+            def summary(self):
+                return "<p>R news</p>"
+
+        dummy_readability.Document = DummyDoc
+        sys.modules["readability"] = dummy_readability
+
+        dummy_trafilatura = types.ModuleType("trafilatura")
+
+        def fail_extract(h):
+            raise AssertionError("trafilatura should not be called")
+
+        dummy_trafilatura.extract = fail_extract
+        sys.modules["trafilatura"] = dummy_trafilatura
+
+        try:
+            text = extract_main_text("http://r")
+        finally:
+            dummy_requests.get = dummy_get
+            del dummy_newspaper.Article
+            del sys.modules["readability"]
+            del sys.modules["trafilatura"]
+
+        self.assertEqual(text, "R news")
+
+    def test_trafilatura_used_when_readability_fails(self):
+        class BadArticle:
+            def __init__(self, url):
+                pass
+
+            def download(self):
+                raise RuntimeError("boom")
+
+            def parse(self):
+                pass
+
+        dummy_newspaper.Article = BadArticle
+
+        html = "<html><p>T news</p></html>"
+
+        class OkResponse:
+            def raise_for_status(self):
+                pass
+
+            @property
+            def text(self):
+                return html
+
+        def ok_get(*a, **k):
+            return OkResponse()
+
+        dummy_requests.get = ok_get
+
+        dummy_readability = types.ModuleType("readability")
+
+        class DummyDoc:
+            def __init__(self, h):
+                pass
+
+            def summary(self):
+                raise RuntimeError("fail")
+
+        dummy_readability.Document = DummyDoc
+        sys.modules["readability"] = dummy_readability
+
+        dummy_trafilatura = types.ModuleType("trafilatura")
+        dummy_trafilatura.extract = lambda h, **k: "T news"
+        sys.modules["trafilatura"] = dummy_trafilatura
+
+        try:
+            text = extract_main_text("http://t")
+        finally:
+            dummy_requests.get = dummy_get
+            del dummy_newspaper.Article
+            del sys.modules["readability"]
+            del sys.modules["trafilatura"]
+
+        self.assertEqual(text, "T news")
 
 if __name__ == "__main__":
     unittest.main()
