@@ -171,7 +171,8 @@ $ python main.py --max-total 30
 $ python main.py --no-screenshot
 # 두 옵션을 함께 쓰면 네이버 기사 "max-naver" 만큼을 우선 확보하고
 # 나머지는 "max-total - max-naver" 범위에서 다른 소스 기사로 채워집니다.
-# 실행하면 본문과 요약 스크립트를 포함한 `articles_*.json` 파일이
+# 실행하면 제목과 링크만 담긴 `articles_*.json` 파일과
+# 각 기사 내용이 들어 있는 `article_*.txt` 파일들이
 # `raw_feeds/` 폴더에 생성됩니다.
 # 폴더가 미리 없더라도 파이프라인이 처음 실행될 때 자동으로 만들어집니다.
 # 진행 상황을 보려면 `--log-level INFO` 나 `LOG_LEVEL=INFO` 환경 변수를 지정하세요.
@@ -183,7 +184,8 @@ raw_feeds/
 
 ### JSON 보강 명령
 
-기본 출력에는 이미 기사 본문과 요약이 포함됩니다. 나중에 스크린샷만
+기본 출력에서는 기사 본문이 개별 `article_*.txt` 파일로 저장되고,
+JSON 파일에는 제목과 링크만 담겨 있습니다. 나중에 스크린샷만
 추가하고 싶다면 `enrich_json` 모듈을 사용할 수 있습니다.
 
 ```bash
