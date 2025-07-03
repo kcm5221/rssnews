@@ -37,15 +37,21 @@
  ┃ ┣ collector.py
  ┃ ┣ naver_news_client.py
  ┃ ┣ pipeline.py
+ ┃ ┣ body_extractor.py
+ ┃ ┣ enrich_json.py
  ┃ ┣ summarizer.py
  ┃ ┣ text_utils.py
  ┃ ┣ block_processor.py
  ┃ ┗ utils.py
  ┣ raw_feeds/             # 결과 JSON 저장 폴더 (파이프라인 실행 시 자동 생성)
+ ┣ examples/              # 사용 예제
+ ┣ tests/                 # 테스트 코드
+ ┣ screens/               # 스크린샷 저장 폴더
  ┣ static/               # 클라이언트용 스크립트
  ┃ ┗ error_logger.js
  ┣ rss_sources.yaml       # 수집 대상 목록
  ┣ main.py                # 엔트리 포인트
+ ┣ screenshot.py          # 화면 캡처 유틸리티
  ┣ requirements.txt       # 필요 패키지 목록
  ┗ README.md
 ```
