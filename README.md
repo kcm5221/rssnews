@@ -202,6 +202,12 @@ $ python -m utubenews.enrich_json raw_feeds/articles_20250613_131459.json --with
 `save_articles()` 함수로 나뉘어 있습니다. 본문 추출과 요약이 필요하다면
 `enrich_articles()` 함수를 별도로 호출하여 처리할 수 있습니다.
 
+본문만 추가하려면 `body_extractor` 명령을 사용할 수 있습니다.
+
+```bash
+$ python -m utubenews.body_extractor articles.json articles_with_body.json
+```
+
 ### 텍스트 블록 처리
 
 뉴스 기사 외의 짧은 글 목록을 한꺼번에 요약하고 번역하려면
