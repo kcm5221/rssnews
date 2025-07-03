@@ -178,21 +178,23 @@ raw_feeds/
  ┗ articles_20250613_131459.json
 ```
 
-이미 저장한 JSON 목록을 본문과 요약까지 채우려면 다음 명령을 사용할 수 있습니다.
+### JSON 보강 명령
+
+저장된 `articles_*.json` 파일에 기사 본문과 요약 스크립트를 추가하려면
+`enrich_json` 모듈을 실행합니다. 스크린샷 저장 여부에 따라 두 가지 방법으로
+사용할 수 있습니다.
 
 ```bash
 $ python -m utubenews.enrich_json raw_feeds/articles_20250613_131459.json
-# 스크린샷도 포함하려면
+# 스크린샷까지 포함하려면
 $ python -m utubenews.enrich_json raw_feeds/articles_20250613_131459.json --with-screenshot
 ```
-결과 파일은 입력과 동일한 폴더에 `articles_enriched_YYYYMMDD.json` 이름으로 저장됩니다.
 
-스크린샷을 저장하는 경우 모든 PNG 파일은 저장소 루트의 `screens/` 폴더에
-저장됩니다. 폴더가 없으면 파이프라인을 실행할 때 자동으로 생성되며,
-`save_articles()` 의 `directory` 값을 바꿔도 스크린샷은 늘 이곳에 저장됩니다.
-`sudo` 로 실행하더라도 동일한 위치에 저장됩니다.
-권한이 부족해 폴더를 만들 수 없을 때는 터미널에서 관리자 권한 사용 여부를 묻고,
-승인하면 `sudo mkdir -p screens` 명령을 실행해 폴더를 생성합니다.
+스크린샷 기능을 활성화하면 모든 PNG 파일이 저장소 루트의 `screens/` 폴더에
+저장됩니다. 폴더가 없으면 자동으로 생성되며, Chrome 또는 Chromium 브라우저가
+시스템에 설치되어 있어야 정상 동작합니다.
+
+완료되면 입력과 같은 폴더에 `articles_enriched_YYYYMMDD.json` 파일이 생성됩니다.
 
 `pipeline.py`의 각 단계는 `collect_articles()`, `deduplicate()`, `sort_articles()`,
 `save_articles()` 함수로 나뉘어 있습니다. 본문 추출과 요약이 필요하다면
