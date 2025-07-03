@@ -13,6 +13,7 @@
 - Improve `extract_main_text` to parse `<article>` containers and lower
   default `min_len` to 10
 - Normalize generated scripts before saving
-- Simplify output: `run()` now saves only titles and links to JSON
+- `run()` always extracts article bodies and summaries
+- Output JSON now includes all collected fields
 - Screenshots are captured by default; use `--no-screenshot` to opt out
 

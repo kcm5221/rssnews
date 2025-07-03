@@ -301,7 +301,7 @@ class TestEnrichArticles(unittest.TestCase):
             with open(path) as f:
                 loaded = json.load(f)
 
-        self.assertEqual(loaded, [{"title": "T", "link": "L"}])
+        self.assertEqual(loaded, out)
 
     def test_enrich_articles_warns_on_unbalanced_quote(self):
         art = {"title": "T", "link": "L"}
@@ -340,7 +340,7 @@ class TestEnrichArticles(unittest.TestCase):
             with open(path) as f:
                 loaded = json.load(f)
 
-        self.assertEqual(loaded, [{"title": "T", "link": "L"}])
+        self.assertEqual(loaded, out)
 
     def test_enrich_articles_falls_back_on_non_text_script(self):
         art = {"title": "T", "link": "L"}
@@ -457,6 +457,55 @@ class TestRun(unittest.TestCase):
         pipeline.enrich_articles = fake_enrich
         try:
             path = pipeline.run(days=2, max_naver=8, with_screenshot=True)
+        finally:
+            pipeline.collect_articles = orig["collect"]
+            pipeline.deduplicate_fuzzy = orig["dedup"]
+            pipeline.sort_articles = orig["sort"]
+            pipeline.save_articles = orig["save"]
+            pipeline.enrich_articles = orig["enrich"]
+
+        self.assertEqual(path, Path("out.json"))
+        self.assertEqual(order, ["collect", "dedup", "sort", "enrich", "save"])
+
+    def test_run_without_screenshot_still_enriches(self):
+        collected = [{"title": "A"}]
+        order = []
+
+        def fake_collect(days=1, max_naver=collector._MAX_NAVER_ARTICLES, max_total=None):
+            order.append("collect")
+            return collected
+
+        def fake_dedup(arts, **kwargs):
+            order.append("dedup")
+            return arts
+
+        def fake_sort(arts):
+            order.append("sort")
+            return arts
+
+        def fake_save(arts, directory=pipeline.RAW_DIR):
+            order.append("save")
+            return Path("out.json")
+
+        def fake_enrich(arts, *, with_screenshot=False):
+            order.append("enrich")
+            self.assertFalse(with_screenshot)
+            return arts
+
+        orig = {
+            "collect": pipeline.collect_articles,
+            "dedup": pipeline.deduplicate_fuzzy,
+            "sort": pipeline.sort_articles,
+            "save": pipeline.save_articles,
+            "enrich": pipeline.enrich_articles,
+        }
+        pipeline.collect_articles = fake_collect
+        pipeline.deduplicate_fuzzy = fake_dedup
+        pipeline.sort_articles = fake_sort
+        pipeline.save_articles = fake_save
+        pipeline.enrich_articles = fake_enrich
+        try:
+            path = pipeline.run(with_screenshot=False)
         finally:
             pipeline.collect_articles = orig["collect"]
             pipeline.deduplicate_fuzzy = orig["dedup"]

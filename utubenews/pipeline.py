@@ -80,12 +80,11 @@ def sort_articles(articles: list[dict]) -> list[dict]:
 
 
 def save_articles(articles: list[dict], directory: Path = RAW_DIR) -> Path:
-    """Save article titles and links to a timestamped JSON file."""
+    """Save ``articles`` to a timestamped JSON file."""
     ts = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
     out_path = directory / f"articles_{ts}.json"
-    simple = [{"title": a.get("title", ""), "link": a.get("link", "")} for a in articles]
-    out_path.write_text(json.dumps(simple, ensure_ascii=False, indent=2))
-    _LOG.info("총 %d건 저장 → %s", len(simple), out_path)
+    out_path.write_text(json.dumps(articles, ensure_ascii=False, indent=2))
+    _LOG.info("총 %d건 저장 → %s", len(articles), out_path)
     try:
         with out_path.open() as f:
             json.load(f)
@@ -101,7 +100,8 @@ def run(
     with_screenshot: bool = True,
 ) -> Path:
     """Execute the full pipeline and return the output file path.
-    Screenshots are captured by default.
+    Article bodies and summaries are always generated. Screenshots are
+    captured by default.
 
     Parameters
     ----------
@@ -117,8 +117,7 @@ def run(
     arts = collect_articles(days=days, max_naver=max_naver, max_total=max_total)
     arts = deduplicate_fuzzy(arts, similarity_threshold=0.9)
     arts = sort_articles(arts)
-    if with_screenshot:
-        arts = enrich_articles(arts, with_screenshot=bool(with_screenshot))
+    arts = enrich_articles(arts, with_screenshot=bool(with_screenshot))
     return save_articles(arts)
 
 if __name__ == "__main__":
