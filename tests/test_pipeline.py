@@ -296,12 +296,22 @@ class TestEnrichArticles(unittest.TestCase):
         self.assertTrue(any("Suspicious script" in m for m in log.output))
 
         import tempfile, json
+        from pathlib import Path
+
         with tempfile.TemporaryDirectory() as td:
             path = pipeline.save_articles(out, Path(td))
             with open(path) as f:
                 loaded = json.load(f)
 
-        self.assertEqual(loaded, out)
+            txts = sorted(Path(td).glob("article_*.txt"))
+            self.assertEqual(len(txts), len(out))
+            with open(txts[0], encoding="utf-8") as tf:
+                txt_content = tf.read()
+
+        expected = [{"title": a["title"], "link": a["link"]} for a in out]
+        self.assertEqual(loaded, expected)
+        self.assertIn(out[0]["title"], txt_content)
+        self.assertIn(out[0]["body"], txt_content)
 
     def test_enrich_articles_warns_on_unbalanced_quote(self):
         art = {"title": "T", "link": "L"}
@@ -335,12 +345,22 @@ class TestEnrichArticles(unittest.TestCase):
         self.assertTrue(any("Suspicious script" in m for m in log.output))
 
         import tempfile, json
+        from pathlib import Path
+
         with tempfile.TemporaryDirectory() as td:
             path = pipeline.save_articles(out, Path(td))
             with open(path) as f:
                 loaded = json.load(f)
 
-        self.assertEqual(loaded, out)
+            txts = sorted(Path(td).glob("article_*.txt"))
+            self.assertEqual(len(txts), len(out))
+            with open(txts[0], encoding="utf-8") as tf:
+                txt_content = tf.read()
+
+        expected = [{"title": a["title"], "link": a["link"]} for a in out]
+        self.assertEqual(loaded, expected)
+        self.assertIn(out[0]["title"], txt_content)
+        self.assertIn(out[0]["body"], txt_content)
 
     def test_enrich_articles_falls_back_on_non_text_script(self):
         art = {"title": "T", "link": "L"}

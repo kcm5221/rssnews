@@ -80,17 +80,31 @@ def sort_articles(articles: list[dict]) -> list[dict]:
 
 
 def save_articles(articles: list[dict], directory: Path = RAW_DIR) -> Path:
-    """Save ``articles`` to a timestamped JSON file."""
+    """Save ``articles`` as JSON and write each body to a ``.txt`` file."""
+
     ts = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_path = directory / f"articles_{ts}.json"
-    out_path.write_text(json.dumps(articles, ensure_ascii=False, indent=2))
-    _LOG.info("총 %d건 저장 → %s", len(articles), out_path)
+    directory.mkdir(exist_ok=True)
+
+    json_path = directory / f"articles_{ts}.json"
+    simple: list[dict] = []
+
+    for idx, art in enumerate(articles, 1):
+        title = art.get("title", "")
+        link = art.get("link", "")
+        body = art.get("body", "")
+        fname = f"article_{ts}_{idx:03d}.txt"
+        txt_path = directory / fname
+        txt_path.write_text(f"{title}\n\n{body}", encoding="utf-8")
+        simple.append({"title": title, "link": link})
+
+    json_path.write_text(json.dumps(simple, ensure_ascii=False, indent=2))
+    _LOG.info("총 %d건 저장 → %s", len(articles), json_path)
     try:
-        with out_path.open() as f:
+        with json_path.open() as f:
             json.load(f)
     except Exception as exc:
-        _LOG.error("Failed to validate JSON %s: %s", out_path, exc)
-    return out_path
+        _LOG.error("Failed to validate JSON %s: %s", json_path, exc)
+    return json_path
 
 def run(
     days: int = 1,
