@@ -80,22 +80,22 @@ def sort_articles(articles: list[dict]) -> list[dict]:
 
 
 def save_articles(articles: list[dict], directory: Path = RAW_DIR) -> Path:
-    """Save ``articles`` as JSON and write each body to a ``.txt`` file."""
+    """Save ``articles`` as JSON and aggregate bodies into one ``.txt`` file."""
 
     ts = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
     directory.mkdir(exist_ok=True)
 
     json_path = directory / f"articles_{ts}.json"
+    txt_path = directory / f"articles_{ts}.txt"
     simple: list[dict] = []
 
-    for idx, art in enumerate(articles, 1):
-        title = art.get("title", "")
-        link = art.get("link", "")
-        body = art.get("body", "")
-        fname = f"article_{ts}_{idx:03d}.txt"
-        txt_path = directory / fname
-        txt_path.write_text(f"{title}\n\n{body}", encoding="utf-8")
-        simple.append({"title": title, "link": link})
+    with txt_path.open("w", encoding="utf-8") as tf:
+        for idx, art in enumerate(articles, 1):
+            title = art.get("title", "")
+            link = art.get("link", "")
+            body = art.get("body", "")
+            tf.write(f"[{idx}] {title}\n\n{body}\n\n")
+            simple.append({"title": title, "link": link})
 
     json_path.write_text(json.dumps(simple, ensure_ascii=False, indent=2))
     _LOG.info("총 %d건 저장 → %s", len(articles), json_path)

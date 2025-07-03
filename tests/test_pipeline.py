@@ -303,8 +303,8 @@ class TestEnrichArticles(unittest.TestCase):
             with open(path) as f:
                 loaded = json.load(f)
 
-            txts = sorted(Path(td).glob("article_*.txt"))
-            self.assertEqual(len(txts), len(out))
+            txts = sorted(Path(td).glob("articles_*.txt"))
+            self.assertEqual(len(txts), 1)
             with open(txts[0], encoding="utf-8") as tf:
                 txt_content = tf.read()
 
@@ -352,8 +352,8 @@ class TestEnrichArticles(unittest.TestCase):
             with open(path) as f:
                 loaded = json.load(f)
 
-            txts = sorted(Path(td).glob("article_*.txt"))
-            self.assertEqual(len(txts), len(out))
+            txts = sorted(Path(td).glob("articles_*.txt"))
+            self.assertEqual(len(txts), 1)
             with open(txts[0], encoding="utf-8") as tf:
                 txt_content = tf.read()
 
