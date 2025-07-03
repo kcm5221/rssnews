@@ -178,6 +178,15 @@ raw_feeds/
  ┗ articles_20250613_131459.json
 ```
 
+이미 저장한 JSON 목록을 본문과 요약까지 채우려면 다음 명령을 사용할 수 있습니다.
+
+```bash
+$ python -m utubenews.enrich_json raw_feeds/articles_20250613_131459.json
+# 스크린샷도 포함하려면
+$ python -m utubenews.enrich_json raw_feeds/articles_20250613_131459.json --with-screenshot
+```
+결과 파일은 입력과 동일한 폴더에 `articles_enriched_YYYYMMDD.json` 이름으로 저장됩니다.
+
 스크린샷을 저장하는 경우 모든 PNG 파일은 저장소 루트의 `screens/` 폴더에
 저장됩니다. 폴더가 없으면 파이프라인을 실행할 때 자동으로 생성되며,
 `save_articles()` 의 `directory` 값을 바꿔도 스크린샷은 늘 이곳에 저장됩니다.
