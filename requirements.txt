@@ -15,6 +15,6 @@ googletrans==4.0.0-rc1   # build_casual_script --lang 옵션에 필요
 deep_translator>=1.11
 selenium>=4.10.0
 chromedriver-autoinstaller
-# Google Chrome or Chromium is required for screenshot.py
+# Google Chrome or Chromium is required for utubenews/screenshot.py
 python-slugify>=8.0
 

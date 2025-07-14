@@ -47,15 +47,15 @@ class TestCapture(unittest.TestCase):
         backups = {name: sys.modules.get(name) for name in [
             "selenium", "selenium.webdriver", "selenium.webdriver.chrome",
             "selenium.webdriver.chrome.options", "chromedriver_autoinstaller",
-            "screenshot",
+            "utubenews.screenshot",
         ]}
         try:
-            for name in ["screenshot"]:
+            for name in ["utubenews.screenshot"]:
                 if name in sys.modules:
                     del sys.modules[name]
             _make_stubs(driver)
             import importlib
-            screenshot = importlib.import_module("screenshot")
+            screenshot = importlib.import_module("utubenews.screenshot")
             orig_which = screenshot.shutil.which
             screenshot.shutil.which = lambda *a, **k: "/bin/chrome"
             with self.assertRaises(RuntimeError):
