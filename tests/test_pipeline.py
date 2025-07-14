@@ -4,12 +4,12 @@ import unittest
 from pathlib import Path
 
 # ensure heavy deps are stubbed
-for mod in ["feedparser", "yaml", "requests", "bs4", "slugify", "screenshot"]:
+for mod in ["feedparser", "yaml", "requests", "bs4", "slugify", "utubenews.screenshot"]:
     if mod not in sys.modules:
         m = types.ModuleType(mod)
         if mod == "slugify":
             m.slugify = lambda s: s
-        if mod == "screenshot":
+        if mod == "utubenews.screenshot":
             m.capture = lambda *a, **k: None
         sys.modules[mod] = m
 

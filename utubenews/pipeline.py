@@ -15,7 +15,7 @@ import json, logging, datetime as dt, re
 from pathlib import Path
 from datetime import datetime
 from slugify import slugify
-from screenshot import capture
+from .screenshot import capture
 from . import collector
 from .collector import collect_all
 from .article_extractor import extract_main_text
