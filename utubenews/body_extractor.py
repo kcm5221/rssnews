@@ -7,9 +7,7 @@ import requests
 import bs4
 
 from .text_utils import clean_text
-from .utils import setup_logging
-
-HEADERS = {"User-Agent": "Mozilla/5.0"}
+from .utils import setup_logging, REQUEST_HEADERS
 _LOG = logging.getLogger(__name__)
 
 
@@ -17,7 +15,7 @@ def extract_body(url: str) -> str:
     """Return cleaned body text from the article page."""
     body = ""
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=10)
+        resp = requests.get(url, headers=REQUEST_HEADERS, timeout=10)
         resp.raise_for_status()
         Soup = getattr(bs4, "BeautifulSoup", None)
         if Soup is not None:

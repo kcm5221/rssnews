@@ -5,14 +5,13 @@ from bs4 import BeautifulSoup
 
 from utubenews.text_utils import clean_text
 from utubenews.summarizer import translate_text
-
-HEADERS = {"User-Agent": "Mozilla/5.0"}
+from utubenews.utils import REQUEST_HEADERS
 
 def fetch_article(link: str) -> tuple[str, str]:
     """Return cleaned title and body text from the article page."""
     title, body = "", ""
     try:
-        resp = requests.get(link, headers=HEADERS, timeout=10)
+        resp = requests.get(link, headers=REQUEST_HEADERS, timeout=10)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
 
