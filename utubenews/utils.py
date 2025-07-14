@@ -7,6 +7,9 @@ import re
 import subprocess
 from typing import Sequence
 
+# Default headers used for HTTP requests
+REQUEST_HEADERS = {"User-Agent": "Mozilla/5.0"}
+
 _LOG = logging.getLogger(__name__)
 from difflib import SequenceMatcher
 

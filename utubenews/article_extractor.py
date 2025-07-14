@@ -4,8 +4,7 @@
 from __future__ import annotations
 import re, requests, bs4, logging, time
 from .text_utils import clean_text
-
-HEADERS = {"User-Agent": "Mozilla/5.0"}
+from .utils import REQUEST_HEADERS
 
 _LOG = logging.getLogger(__name__)
 
@@ -149,7 +148,7 @@ def extract_main_text(url: str, min_len: int = 10) -> str:
 
     html = ""
     try:
-        response = _get_with_retries(url, HEADERS)
+        response = _get_with_retries(url, REQUEST_HEADERS)
         html = response.text
     except requests.exceptions.RequestException as e:
         _LOG.warning("Failed to fetch %s: %s", url, e)
