@@ -1,0 +1,20 @@
+feedparser==6.0.11
+python-dotenv==1.0.1
+newspaper3k==0.2.8
+# 선택: 로컬 LLM
+transformers==4.41.1
+torch==2.3.0
+pyyaml==6.0.1
+
+requests>=2.0
+beautifulsoup4>=4.0
+readability-lxml>=0.8.1
+trafilatura>=1.6.1
+
+googletrans==4.0.0-rc1   # build_casual_script --lang 옵션에 필요
+deep_translator>=1.11
+selenium>=4.10.0
+chromedriver-autoinstaller
+# Google Chrome or Chromium is required for screenshot.py
+python-slugify>=8.0
+
