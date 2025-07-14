@@ -25,7 +25,7 @@ from .utils import deduplicate_fuzzy, run_as_sudo
 
 _LOG = logging.getLogger(__name__)
 ROOT_DIR = Path(__file__).resolve().parents[1]
-RAW_DIR = Path("raw_feeds")
+RAW_DIR = ROOT_DIR / "raw_feeds"
 SCREENS_DIR = ROOT_DIR / "screens"
 RAW_DIR.mkdir(exist_ok=True)
 
