@@ -10,6 +10,7 @@ from .text_utils import clean_html_text
 from .utils import filter_keywords, deduplicate_fuzzy
 
 _LOG = logging.getLogger(__name__)
+ROOT_DIR = Path(__file__).resolve().parents[1]
 _ALLOWED_TOPICS = {"IT", "게임", "AI", "보안", "프로그래밍"}
 
 # Keywords used to filter Naver search results.
@@ -43,7 +44,7 @@ _EXCLUDE_KEYWORDS = [
 
 _MAX_NAVER_ARTICLES = 10
 
-_SRC_PATH = Path("rss_sources.yaml")
+_SRC_PATH = ROOT_DIR / "rss_sources.yaml"
 
 
 def _load_sources() -> list[dict]:
